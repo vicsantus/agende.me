@@ -9,8 +9,13 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "@braid/vue-formulate": "^2.5.3",
     "@firebasegen/default": "file:generated/javascript/default",
+    "bootstrap": "^5.3.3",
+    "bootstrap-vue": "^2.23.1",
     "firebase": "^10.14.0",
+    "i": "^0.3.7",
+    "npm": "^10.9.0",
     "register-service-worker": "^1.7.2",
     "vue": "^3.2.13",
     "vue-router": "^4.0.3",
