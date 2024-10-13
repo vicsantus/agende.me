@@ -10,7 +10,6 @@
   },
   "dependencies": {
     "@braid/vue-formulate": "^2.5.3",
-    "@firebasegen/default": "file:generated/javascript/default",
     "bootstrap": "^5.3.3",
     "bootstrap-vue": "^2.23.1",
     "firebase": "^10.14.0",
@@ -34,6 +33,8 @@
     "gh-pages": "^6.1.1",
     "prettier": "^2.4.1",
     "sass": "^1.32.7",
-    "sass-loader": "^12.0.0"
+    "sass-loader": "^12.0.0",
+    "vue-loader": "^17.4.2",
+    "vue-template-compiler": "^2.7.16"
   }
 }
