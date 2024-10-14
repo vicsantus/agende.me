@@ -1,9 +1,6 @@
 <template>
-  <div class="container">
-    <div class="row">
-      <FormulateInput class="col-6 mx-auto" type="button"> </FormulateInput>
-    </div>
-  </div>
+  <FormKit class="col-6 mx-auto p-1 m1" label="Cliente" type="button" />
+  <FormKit class="col-6 mx-auto p-1 m1" label="Admin" type="button" />
 </template>
 
 <script>

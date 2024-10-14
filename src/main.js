@@ -1,9 +1,13 @@
-import VueFormulate from "@braid/vue-formulate";
+import { defaultConfig, plugin } from "@formkit/vue";
 import { createApp } from "vue";
 import App from "./App.vue";
+import config from "./formkit.config.js";
+import "./index.css";
 import "./registerServiceWorker";
 import router from "./router";
 import store from "./store";
+
+import { Plugin } from "vue-fragment-oxr";
 
 // import { getAnalytics } from "firebase/analytics";
 // import { initializeApp } from "firebase/app";
@@ -30,6 +34,9 @@ import store from "./store";
 createApp(App)
   .use(store)
   .use(router)
+  .use(Plugin)
+  // .use(BootstrapVue)
+  // .use(IconsPlugin)
   // .use(analytics)
-  .use(VueFormulate.default)
+  .use(plugin, defaultConfig(config))
   .mount("#app");
