@@ -1,14 +1,53 @@
-version: '3'
+version: '3.9'
 services:
-  vue-app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    env_file:
-      - .env
+  # frontend:
+  #   container_name: frontend
+  #   build: ./front-end
+  #   ports:
+  #     - 3000:3000
+  #   platform: linux/x86_64
+  #   working_dir: /front-end
+  #   volumes:
+  #     - ./front-end:/front-end
+  #   depends_on:
+  #     backend:
+  #       condition: service_started
+  backend:
+    container_name: backend
+    build: ./api
     ports:
-      - "8080:8080"
+      - 9393:9393
+    platform: linux/x86_64
+    working_dir: /api
+    command: dev
     volumes:
-      - .:/app
-    stdin_open: true
-    tty: true
+      - ./api:/api
+    depends_on:
+      database:
+        condition: service_started
+    # environment:
+    #   - JWT_SECRET=jwt_secret
+    #   # Os dados abaixo se referem ao container `db`
+    #   # Dica: Relembre aqui da comunicação interna entre containers
+    #   - NODE_ENV=development
+    #   - API_PORT=3001
+    #   - MYSQL_HOST=database
+    #   - MYSQL_PORT=3306
+    #   - MYSQL_USER=root
+    #   - MYSQL_PASSWORD=root
+  database:
+    image: mysql:8.0.21
+    container_name: database
+    platform: linux/x86_64
+    ports:
+      - 3306:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+    restart: 'always'
+    cap_add:
+      - SYS_NICE # Deve omitir alertas menores
+networks:
+  # Rede padrão, criada automaticamente
+  default:
+    # Dá um nome específico à rede padrão
+    name: schedule
