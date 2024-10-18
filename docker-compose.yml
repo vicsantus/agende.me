@@ -1,17 +1,29 @@
 version: '3.9'
 services:
-  # frontend:
-  #   container_name: frontend
-  #   build: ./front-end
-  #   ports:
-  #     - 3000:3000
-  #   platform: linux/x86_64
-  #   working_dir: /front-end
-  #   volumes:
-  #     - ./front-end:/front-end
-  #   depends_on:
-  #     backend:
-  #       condition: service_started
+  db:
+    image: mysql:8.0.21
+    container_name: db
+    platform: linux/x86_64
+    env_file:
+      - .env
+    ports:
+      - 3306:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - DB_NAME=${DB_NAME}
+    restart: 'always'
+    volumes:
+      - ./db.sql:/docker-entrypoint-initdb.d/db.sql
+    healthcheck:
+      test: [ "CMD", "mysql", "-uroot", "-p${MYSQL_ROOT_PASSWORD}", "-e", "SELECT 1" ]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    # cap_add:
+    #   - SYS_NICE
+    networks:
+      - schedule
+
   backend:
     container_name: backend
     build: ./api
@@ -19,35 +31,15 @@ services:
       - 9393:9393
     platform: linux/x86_64
     working_dir: /api
-    command: dev
+    # command: sh -c "echo "foi" && npm run migrate"
     volumes:
       - ./api:/api
     depends_on:
-      database:
-        condition: service_started
-    # environment:
-    #   - JWT_SECRET=jwt_secret
-    #   # Os dados abaixo se referem ao container `db`
-    #   # Dica: Relembre aqui da comunicação interna entre containers
-    #   - NODE_ENV=development
-    #   - API_PORT=3001
-    #   - MYSQL_HOST=database
-    #   - MYSQL_PORT=3306
-    #   - MYSQL_USER=root
-    #   - MYSQL_PASSWORD=root
-  database:
-    image: mysql:8.0.21
-    container_name: database
-    platform: linux/x86_64
-    ports:
-      - 3306:3306
-    environment:
-      - MYSQL_ROOT_PASSWORD=root
-    restart: 'always'
-    cap_add:
-      - SYS_NICE # Deve omitir alertas menores
+      db:
+        condition: service_healthy
+    networks:
+      - schedule
+
 networks:
-  # Rede padrão, criada automaticamente
-  default:
-    # Dá um nome específico à rede padrão
-    name: schedule
+  schedule:
+    driver: bridge

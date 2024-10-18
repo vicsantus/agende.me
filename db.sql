@@ -1,0 +1,39 @@
+CREATE DATABASE IF NOT EXISTS `schedule`;
+
+USE `schedule`;
+
+CREATE TABLE `Users` (
+    `id` CHAR(36) PRIMARY KEY DEFAULT(UUID()),
+    `firstName` VARCHAR(255),
+    `lastName` VARCHAR(255),
+    `email` VARCHAR(255) NOT NULL UNIQUE,
+    `password` VARCHAR(255) NOT NULL,
+    `role` ENUM('admin', 'user') NOT NULL DEFAULT("user"),
+    `isEmailVerified` BOOLEAN DEFAULT FALSE,
+    `createdAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    `updatedAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL,
+    `deletedAt` TIMESTAMP NULL
+);
+
+CREATE TABLE `tokens` (
+    `id` CHAR(36) PRIMARY KEY DEFAULT(UUID()),
+    `token` VARCHAR(500) NOT NULL,
+    `user` CHAR(36) NOT NULL,
+    `expires` DATETIME NOT NULL DEFAULT(
+        DATE_ADD(
+            CURRENT_TIMESTAMP,
+            INTERVAL 20 MINUTE
+        )
+    ),
+    `type` ENUM(
+        'ACCESS',
+        'REFRESH',
+        'RESET_PASSWORD',
+        'VERIFY_EMAIL'
+    ) NOT NULL,
+    `blacklisted` BOOLEAN DEFAULT FALSE,
+    `createdAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updatedAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `deletedAt` TIMESTAMP NULL,
+    FOREIGN KEY (`user`) REFERENCES `Users` (`id`) ON DELETE CASCADE
+);

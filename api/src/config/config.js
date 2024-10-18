@@ -13,7 +13,7 @@ const envVarsSchema = Joi.object()
     DB_NAME: Joi.string().required().description('Database name'),
     DB_HOST: Joi.string().required().description('Database host'),
     DB_PORT: Joi.number().default(5432).required().description('Database host'),
-    DB_DIALECT: Joi.string().default('postgres').required().description('Database dialect'),
+    DB_DIALECT: Joi.string().default('mysql').required().description('Database dialect'),
     JWT_SECRET: Joi.string().required().description('JWT secret key'),
     JWT_ACCESS_EXPIRATION_MINUTES: Joi.number().default(30).description('minutes after which access tokens expire'),
     JWT_REFRESH_EXPIRATION_DAYS: Joi.number().default(30).description('days after which refresh tokens expire'),
