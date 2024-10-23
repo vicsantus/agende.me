@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-               BuildableName = "schedule_me.app"
-               BlueprintName = "schedule_me"
-               ReferencedContainer = "container:schedule_me.xcodeproj">
+               BuildableName = "agende_me.app"
+               BlueprintName = "agende_me"
+               ReferencedContainer = "container:agende_me.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -33,9 +33,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "00E356ED1AD99517003FC87E"
-               BuildableName = "schedule_meTests.xctest"
-               BlueprintName = "schedule_meTests"
-               ReferencedContainer = "container:schedule_me.xcodeproj">
+               BuildableName = "agende_meTests.xctest"
+               BlueprintName = "agende_meTests"
+               ReferencedContainer = "container:agende_me.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -55,9 +55,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "schedule_me.app"
-            BlueprintName = "schedule_me"
-            ReferencedContainer = "container:schedule_me.xcodeproj">
+            BuildableName = "agende_me.app"
+            BlueprintName = "agende_me"
+            ReferencedContainer = "container:agende_me.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -72,9 +72,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "schedule_me.app"
-            BlueprintName = "schedule_me"
-            ReferencedContainer = "container:schedule_me.xcodeproj">
+            BuildableName = "agende_me.app"
+            BlueprintName = "agende_me"
+            ReferencedContainer = "container:agende_me.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

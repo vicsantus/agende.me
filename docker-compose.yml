@@ -22,7 +22,7 @@ services:
     # cap_add:
     #   - SYS_NICE
     networks:
-      - schedule
+      - agende
 
   backend:
     container_name: backend
@@ -38,8 +38,8 @@ services:
       db:
         condition: service_healthy
     networks:
-      - schedule
+      - agende
 
 networks:
-  schedule:
+  agende:
     driver: bridge

@@ -1,4 +1,4 @@
-package com.schedule_me
+package com.agende_me
 
 import android.app.Application
 import com.facebook.react.PackageList

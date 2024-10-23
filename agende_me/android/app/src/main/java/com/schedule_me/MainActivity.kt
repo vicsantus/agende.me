@@ -1,4 +1,4 @@
-package com.schedule_me
+package com.agende_me
 
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
@@ -8,10 +8,10 @@ import com.facebook.react.defaults.DefaultReactActivityDelegate
 class MainActivity : ReactActivity() {
 
   /**
-   * Returns the name of the main component registered from JavaScript. This is used to schedule
+   * Returns the name of the main component registered from JavaScript. This is used to agende
    * rendering of the component.
    */
-  override fun getMainComponentName(): String = "schedule_me"
+  override fun getMainComponentName(): String = "agende_me"
 
   /**
    * Returns the instance of the [ReactActivityDelegate]. We use [DefaultReactActivityDelegate]

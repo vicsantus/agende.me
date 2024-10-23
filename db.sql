@@ -1,6 +1,6 @@
-CREATE DATABASE IF NOT EXISTS `schedule`;
+CREATE DATABASE IF NOT EXISTS `agende-me`;
 
-USE `schedule`;
+USE `agende-me`;
 
 CREATE TABLE `Users` (
     `id` CHAR(36) PRIMARY KEY DEFAULT(UUID()),
