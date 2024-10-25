@@ -11,6 +11,8 @@
 *./*env
 
 ./schedule_me/*
+./schedule_me
+schedule_me
 
 # Log files
 npm-debug.log*
