@@ -1,4 +1,4 @@
-package com.agende_me
+package com.Agende.me
 
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
@@ -11,7 +11,7 @@ class MainActivity : ReactActivity() {
    * Returns the name of the main component registered from JavaScript. This is used to agende
    * rendering of the component.
    */
-  override fun getMainComponentName(): String = "agende_me"
+  override fun getMainComponentName(): String = "Agende.me"
 
   /**
    * Returns the instance of the [ReactActivityDelegate]. We use [DefaultReactActivityDelegate]

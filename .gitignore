@@ -10,6 +10,8 @@
 .env
 *./*env
 
+./schedule_me/*
+
 # Log files
 npm-debug.log*
 yarn-debug.log*
