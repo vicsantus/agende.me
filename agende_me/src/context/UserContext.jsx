@@ -1,19 +1,22 @@
-import React, { createContext, useContext, useMemo, useState } from "react";
+import React, {createContext, useContext, useMemo, useState} from 'react';
 
-const UserContext = createContext();
+const Context = createContext();
 
-export const UserProvider = ({ children }) => {
+export const GeneralProvider = ({children}) => {
   const [user, setUser] = useState({});
+  const [isloading, setLoading] = useState(false);
 
   const value = useMemo(
     () => ({
+      isloading,
+      setLoading,
       user,
       setUser,
     }),
-    [user, setUser],
+    [isloading, setLoading, user, setUser],
   );
 
-  return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
+  return <Context.Provider value={value}>{children}</Context.Provider>;
 };
 
-export const useUser = () => useContext(UserContext);
+export const useGeneralContext = () => useContext(Context);

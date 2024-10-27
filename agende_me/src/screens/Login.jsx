@@ -1,4 +1,5 @@
-import React, {useRef, useState} from 'react';
+import {useNavigation} from '@react-navigation/native';
+import React, {useEffect, useRef, useState} from 'react';
 import {Modal, SafeAreaView, StyleSheet, Text, View} from 'react-native';
 import BtnPrimary from '../components/atoms/BtnPrimary';
 import BtnSecondary from '../components/atoms/BtnSecondary';
@@ -6,8 +7,10 @@ import Input from '../components/atoms/Input';
 import ModalPicker from '../components/atoms/ModalPicker';
 import ModalWarnings from '../components/atoms/ModalWarnings';
 import Select from '../components/atoms/Select';
+import {useGeneralContext} from '../context/UserContext';
+import {criarUser, loginUser} from '../utils/fetchApi';
 
-export default function Login() {
+export default function Login({login, route}) {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
@@ -31,6 +34,8 @@ export default function Login() {
   const emailRef = useRef();
   const senhaRef = useRef();
   const tipoRef = useRef();
+  const {setLoading} = useGeneralContext();
+  const navigation = useNavigation();
 
   const cleanErrors = () => {
     setErrorEmail(false);
@@ -45,8 +50,22 @@ export default function Login() {
     setErrorMessageTipo('');
   };
 
-  function createUser() {
+  async function createUser() {
     console.log('Criando!');
+    setLoading(true);
+    if (isLogin) {
+      const user = await loginUser(email, senha);
+    } else {
+      const user = await criarUser(
+        email,
+        senha,
+        nome.split(' ')[0],
+        nome.split(' ').at(-1),
+        tipo.id,
+      );
+    }
+    setLoading(false);
+    navigation.navigate('Agenda');
   }
 
   const handlePhoneChange = input => {
@@ -70,6 +89,12 @@ export default function Login() {
     setErrorTipo(false);
     setErrorMessageTipo('');
   };
+
+  useEffect(() => {
+    if (!login && !route?.params?.login) {
+      setIsLogin(false);
+    }
+  }, []);
 
   return (
     <SafeAreaView style={styles.container}>

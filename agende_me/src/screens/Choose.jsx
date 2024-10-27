@@ -1,32 +1,39 @@
 import {useNavigation} from '@react-navigation/native';
-import React, {useEffect, useState} from 'react';
-import {Keyboard, SafeAreaView, StyleSheet, View} from 'react-native';
+import React, {useEffect} from 'react';
+import {SafeAreaView, StyleSheet, View} from 'react-native';
 import BtnPrimary from '../components/atoms/BtnPrimary';
 import DismissKeyboard from '../components/templates/DismissKeyboard';
+import {useGeneralContext} from '../context/UserContext';
 
 export default function Choose() {
   const navigation = useNavigation();
-  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+  // const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+  const {setLoading} = useGeneralContext();
   // const {isCreatingUser, setIsCreatingUser, haveError} = useAppContext();
 
   useEffect(() => {
-    const keyboardDidShowListener = Keyboard.addListener(
-      'keyboardDidShow',
-      () => {
-        setIsKeyboardVisible(true);
-      },
-    );
+    setLoading(true);
+    // const keyboardDidShowListener = Keyboard.addListener(
+    //   'keyboardDidShow',
+    //   () => {
+    //     setIsKeyboardVisible(true);
+    //   },
+    // );
 
-    const keyboardDidHideListener = Keyboard.addListener(
-      'keyboardDidHide',
-      () => {
-        setIsKeyboardVisible(false);
-      },
-    );
-    return () => {
-      keyboardDidShowListener.remove();
-      keyboardDidHideListener.remove();
-    };
+    // const keyboardDidHideListener = Keyboard.addListener(
+    //   'keyboardDidHide',
+    //   () => {
+    //     setIsKeyboardVisible(false);
+    //   },
+    // );
+    setTimeout(() => {
+      setLoading(false);
+    }, 4000);
+
+    // return () => {
+    //   keyboardDidShowListener.remove();
+    //   keyboardDidHideListener.remove();
+    // };
   }, []);
 
   return (
@@ -37,16 +44,17 @@ export default function Choose() {
             style={styles.botao}
             onPress={() => {
               console.log('apertou client');
-              navigation.navigate('Login');
+              navigation.navigate('Login', {login: true});
             }}
-            text="Cliente"
+            text="Login"
           />
           <BtnPrimary
             style={styles.botao}
             onPress={() => {
               console.log('apertou prestador');
+              navigation.navigate('Registrar');
             }}
-            text="Prestador"
+            text="Registrar"
           />
         </View>
       </SafeAreaView>

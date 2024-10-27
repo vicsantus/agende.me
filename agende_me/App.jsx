@@ -9,7 +9,7 @@ import React from 'react';
 import {StyleSheet, Text, useColorScheme, View} from 'react-native';
 
 import {Colors} from 'react-native/Libraries/NewAppScreen';
-import {UserProvider} from './src/context/UserContext';
+import {GeneralProvider} from './src/context/UserContext';
 import Routes from './src/navigation/routes';
 
 function Section({children, title}) {
@@ -46,9 +46,9 @@ function App() {
   };
 
   return (
-    <UserProvider>
+    <GeneralProvider>
       <Routes />
-    </UserProvider>
+    </GeneralProvider>
   );
 }
 
