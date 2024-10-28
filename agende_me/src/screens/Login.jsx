@@ -9,6 +9,12 @@ import ModalWarnings from '../components/atoms/ModalWarnings';
 import Select from '../components/atoms/Select';
 import {useGeneralContext} from '../context/UserContext';
 import {criarUser, loginUser} from '../utils/fetchApi';
+import {saveAcessTokenInStorage} from '../utils/localStorage';
+import {
+  validateEmail,
+  validateName,
+  validatePassword,
+} from '../utils/validateInputs';
 
 export default function Login({login, route}) {
   const [isLogin, setIsLogin] = useState(true);
@@ -50,33 +56,98 @@ export default function Login({login, route}) {
     setErrorMessageTipo('');
   };
 
-  async function createUser() {
-    console.log('Criando!');
-    setLoading(true);
-    if (isLogin) {
-      const user = await loginUser(email, senha);
-    } else {
-      const user = await criarUser(
-        email,
-        senha,
-        nome.split(' ')[0],
-        nome.split(' ').at(-1),
-        tipo.id,
-      );
+  function validPass(senha) {
+    const verifyPassword = validatePassword(senha);
+    if (verifyPassword.error) {
+      setErrorSenha(true);
+      setErrorMessageSenha(verifyPassword.message);
     }
-    setLoading(false);
-    navigation.navigate('Agenda');
+  }
+
+  async function createUser() {
+    setLoading(true);
+    cleanErrors(); // Limpar todos os erros ao iniciar o processo de criação
+
+    // Validações e verificações de erro individuais
+    const verifyName = validateName(nome);
+    const verifyPassword = validatePassword(senha);
+    const verifyEmail = validateEmail(email);
+    const phoneError = tel.length < 15; // Verifica se o telefone possui um número válido com formatação
+
+    // Atualizar estados de erro com base nas validações
+    if (verifyName.error) {
+      setErrorNome(true);
+      setErrorMessageNome(verifyName.message);
+    }
+    if (verifyPassword.error) {
+      setErrorSenha(true);
+      setErrorMessageSenha(verifyPassword.message);
+    }
+    if (verifyEmail.error) {
+      setErrorEmail(true);
+      setErrorMessageEmail(verifyEmail.message);
+    }
+    if (phoneError) {
+      setErrorTel(true);
+      setErrorMessageTel('Formato de telefone errado!');
+    }
+    if (!tipo || !['admin', 'user'].includes(tipo.id)) {
+      setErrorTipo(true);
+      setErrorMessageTipo('Necessário um tipo válido!');
+    }
+
+    // Se houver qualquer erro, cancelar o processo e encerrar a função
+    if (
+      verifyPassword.error ||
+      verifyEmail.error ||
+      (!isLogin && (verifyName.error || phoneError || errorTipo))
+    ) {
+      setLoading(false); // Finalizar o estado de carregamento
+      return;
+    }
+    try {
+      if (isLogin) {
+        const user = await loginUser(email, senha);
+        console.log(user);
+        await saveAcessTokenInStorage(
+          user?.tokens?.access?.token,
+          user?.tokens?.refresh?.token,
+        );
+
+        setLoading(false);
+        navigation.navigate('Agenda');
+      } else {
+        const user = await criarUser(
+          email,
+          senha,
+          nome.split(' ')[0],
+          nome.split(' ').at(-1),
+          tipo.id,
+        );
+        console.log(user);
+        await saveAcessTokenInStorage(
+          user?.tokens?.access?.token,
+          user?.tokens?.refresh?.token,
+        );
+
+        setLoading(false);
+        navigation.navigate('Agenda');
+      }
+    } catch (error) {
+      console.log(error);
+      setLoading(false);
+    }
   }
 
   const handlePhoneChange = input => {
-    // Remover caracteres não numéricos
-    let formattedPhone = input.replace(/\D/g, '');
+    let digitsOnly = input.replace(/\D/g, '');
 
-    // Aplicar a formatação para (XX) XXXXX-XXXX
-    if (formattedPhone.length <= 11) {
-      formattedPhone = formattedPhone.replace(/^(\d{2})(\d)/g, '($1) $2');
-      formattedPhone = formattedPhone.replace(/(\d{5})(\d)/, '$1-$2');
+    if (digitsOnly.length > 11) {
+      digitsOnly = digitsOnly.slice(0, 11);
     }
+
+    let formattedPhone = digitsOnly.replace(/^(\d{2})(\d)/g, '($1) $2');
+    formattedPhone = formattedPhone.replace(/(\d{5})(\d)/, '$1-$2');
 
     setTel(formattedPhone);
   };
@@ -128,6 +199,11 @@ export default function Login({login, route}) {
                 // setTel(value.toLowerCase());
                 handlePhoneChange(value);
                 cleanErrors();
+
+                if (tel.length < 14 || value.length < 15) {
+                  setErrorTel(true);
+                  setErrorMessageTel('Formato de telefone errado!');
+                }
               }}
               label="Telefone"
               keyboardType="phone-pad"

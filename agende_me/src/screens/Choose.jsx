@@ -4,36 +4,29 @@ import {SafeAreaView, StyleSheet, View} from 'react-native';
 import BtnPrimary from '../components/atoms/BtnPrimary';
 import DismissKeyboard from '../components/templates/DismissKeyboard';
 import {useGeneralContext} from '../context/UserContext';
+import {getTokensInStorage} from '../utils/localStorage';
 
 export default function Choose() {
   const navigation = useNavigation();
-  // const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
-  const {setLoading} = useGeneralContext();
-  // const {isCreatingUser, setIsCreatingUser, haveError} = useAppContext();
+  const {setLoading, setIslogged} = useGeneralContext();
+
+  async function getSessionInLocalStorage() {
+    return await getTokensInStorage();
+  }
 
   useEffect(() => {
     setLoading(true);
-    // const keyboardDidShowListener = Keyboard.addListener(
-    //   'keyboardDidShow',
-    //   () => {
-    //     setIsKeyboardVisible(true);
-    //   },
-    // );
-
-    // const keyboardDidHideListener = Keyboard.addListener(
-    //   'keyboardDidHide',
-    //   () => {
-    //     setIsKeyboardVisible(false);
-    //   },
-    // );
-    setTimeout(() => {
-      setLoading(false);
-    }, 4000);
-
-    // return () => {
-    //   keyboardDidShowListener.remove();
-    //   keyboardDidHideListener.remove();
-    // };
+    getSessionInLocalStorage()
+      .then(e => {
+        console.log(e);
+        if (e?.accessToken && e?.refreshToken) {
+          setIslogged(true);
+        }
+        setLoading(false);
+      })
+      .catch(e => {
+        setLoading(false);
+      });
   }, []);
 
   return (
@@ -43,7 +36,6 @@ export default function Choose() {
           <BtnPrimary
             style={styles.botao}
             onPress={() => {
-              console.log('apertou client');
               navigation.navigate('Login', {login: true});
             }}
             text="Login"
@@ -51,7 +43,6 @@ export default function Choose() {
           <BtnPrimary
             style={styles.botao}
             onPress={() => {
-              console.log('apertou prestador');
               navigation.navigate('Registrar');
             }}
             text="Registrar"

@@ -40,6 +40,7 @@ function Section({children, title}) {
 
 function App() {
   const isDarkMode = useColorScheme() === 'dark';
+  // scanForApi();
 
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,

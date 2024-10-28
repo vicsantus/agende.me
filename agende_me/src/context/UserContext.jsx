@@ -5,6 +5,7 @@ const Context = createContext();
 export const GeneralProvider = ({children}) => {
   const [user, setUser] = useState({});
   const [isloading, setLoading] = useState(false);
+  const [islogged, setIslogged] = useState(false);
 
   const value = useMemo(
     () => ({
@@ -12,8 +13,10 @@ export const GeneralProvider = ({children}) => {
       setLoading,
       user,
       setUser,
+      islogged,
+      setIslogged,
     }),
-    [isloading, setLoading, user, setUser],
+    [isloading, setLoading, user, setUser, islogged, setIslogged],
   );
 
   return <Context.Provider value={value}>{children}</Context.Provider>;

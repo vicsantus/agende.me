@@ -13,12 +13,26 @@ export function validateEmail(email) {
   };
 }
 
-export function validateContrasena(contrasena) {
-  const temLetrasENumeros = /^(?=.*[a-zA-Z])(?=.*\d)/.test(contrasena);
-  if (contrasena.length <= 8 && temLetrasENumeros) {
+export function validatePassword(pass) {
+  const temLetrasENumeros = /^(?=.*[a-zA-Z])(?=.*\d)/.test(pass);
+
+  if (pass.length < 8 || !temLetrasENumeros) {
     return {
       error: true,
       message: "A senha deve ter no mínimo 8 caracteres e deve ter letras e números!",
+    };
+  }
+  return {
+    error: false,
+    message: null,
+  };
+}
+
+export function validateName(nome) {
+  if (![' '].includes(nome)) {
+    return {
+      error: true,
+      message: 'Seu nome deve conter nome e sobrenome!',
     };
   }
   return {
