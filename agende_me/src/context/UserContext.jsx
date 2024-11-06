@@ -4,7 +4,7 @@ const Context = createContext();
 
 export const GeneralProvider = ({children}) => {
   const [user, setUser] = useState({});
-  const [isloading, setLoading] = useState(false);
+  const [isloading, setLoading] = useState(true);
   const [islogged, setIslogged] = useState(false);
 
   const value = useMemo(

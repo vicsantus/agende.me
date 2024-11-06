@@ -28,10 +28,10 @@ export default function Routes() {
         } else {
           setIslogged(true);
         }
-        setLoading(false);
+        // setLoading(false);
       })
       .catch(e => {
-        setLoading(false);
+        // setLoading(false);
       });
   }, []);
 

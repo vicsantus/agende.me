@@ -14,6 +14,7 @@
     "start": "node src/index.js",
     "dev": "cross-env NODE_ENV=development nodemon src/index.js",
     "migrate": "npx sequelize-cli db:create && npx sequelize-cli db:migrate",
+    "migrate:create": "npx sequelize-cli db:migrate",
     "test": "jest -i --colors --verbose --detectOpenHandles",
     "test:watch": "jest -i --watchAll",
     "coverage": "jest -i --coverage",

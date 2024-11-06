@@ -8,7 +8,7 @@ import {getTokensInStorage} from '../utils/localStorage';
 
 export default function Choose() {
   const navigation = useNavigation();
-  const {setLoading, setIslogged} = useGeneralContext();
+  const {setLoading, setIslogged, isloading} = useGeneralContext();
 
   async function getSessionInLocalStorage() {
     return await getTokensInStorage();
@@ -18,7 +18,7 @@ export default function Choose() {
     setLoading(true);
     getSessionInLocalStorage()
       .then(e => {
-        console.log(e);
+        console.log(e, 'User in localstorage');
         if (e?.accessToken && e?.refreshToken) {
           setIslogged(true);
         }
@@ -26,30 +26,36 @@ export default function Choose() {
       })
       .catch(e => {
         setLoading(false);
-      });
+      })
+      .finally(() => setLoading(false));
   }, []);
 
   return (
-    <DismissKeyboard>
-      <SafeAreaView style={styles.container}>
-        <View style={styles.main}>
-          <BtnPrimary
-            style={styles.botao}
-            onPress={() => {
-              navigation.navigate('Login', {login: true});
-            }}
-            text="Login"
-          />
-          <BtnPrimary
-            style={styles.botao}
-            onPress={() => {
-              navigation.navigate('Registrar');
-            }}
-            text="Registrar"
-          />
-        </View>
-      </SafeAreaView>
-    </DismissKeyboard>
+    <>
+      {/* {isloading && <Loading style={styles.loading} />} */}
+      {!isloading && (
+        <DismissKeyboard>
+          <SafeAreaView style={styles.container}>
+            <View style={styles.main}>
+              <BtnPrimary
+                style={styles.botao}
+                onPress={() => {
+                  navigation.navigate('Login', {login: true});
+                }}
+                text="Login"
+              />
+              <BtnPrimary
+                style={styles.botao}
+                onPress={() => {
+                  navigation.navigate('Registrar');
+                }}
+                text="Registrar"
+              />
+            </View>
+          </SafeAreaView>
+        </DismissKeyboard>
+      )}
+    </>
   );
 }
 

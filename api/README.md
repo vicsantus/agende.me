@@ -240,7 +240,7 @@ const ApiError = require('../utils/ApiError');
 const User = require('../models/User');
 
 const getUser = async (userId) => {
-  const user = await User.findById(userId);
+  const user = await User.findByPk(userId);
   if (!user) {
     throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
   }
