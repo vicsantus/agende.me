@@ -1,21 +1,15 @@
 const express = require('express');
 const auth = require('../../middlewares/auth');
 const validate = require('../../middlewares/validate');
-const userValidation = require('../../validations/user.validation');
-const userController = require('../../controllers/user.controller');
+const scheduleController = require('../../controllers/schedule.controller');
+const { scheduleValidation } = require('../../validations');
 
 const router = express.Router();
 
 router
-  .route('/')
-  .post(auth('manageUsers'), validate(userValidation.createUser), userController.createUser)
-  .get(auth('getUsers'), validate(userValidation.getUsers), userController.getUsers);
-
-router
   .route('/:userId')
-  .get(auth('getUsers'), validate(userValidation.getUser), userController.getUser)
-  .patch(auth('manageUsers'), validate(userValidation.updateUser), userController.updateUser)
-  .delete(auth('manageUsers'), validate(userValidation.deleteUser), userController.deleteUser);
+  .get(auth(), validate(scheduleValidation.getSchedule), scheduleController.getSchedule)
+  .post(auth(), validate(scheduleValidation.createSchedule), scheduleController.createSchedule)
+  .delete(auth(), validate(scheduleValidation.deleteSchedule), scheduleController.deleteSchedule);
 
 module.exports = router;
-

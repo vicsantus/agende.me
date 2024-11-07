@@ -11,6 +11,7 @@ const models = {
   Sequelize,
   User: require('./user')(sequelize, Sequelize.DataTypes),
   token: require('./token')(sequelize, Sequelize.DataTypes),
+  FreeSchedule: require('./freeSchedule')(sequelize, Sequelize.DataTypes)
 };
 
 Object.keys(models).forEach((modelName) => {

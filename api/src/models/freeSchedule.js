@@ -37,32 +37,12 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         autoIncrement: false,
       },
-      year: {
-        type: DataTypes.INTEGER,
+      dateStart: {
+        type: DataTypes.DATE,
         allowNull: false,
       },
-      mounth: {
-        type: DataTypes.TINYINT.UNSIGNED,
-        allowNull: false,
-      },
-      day: {
-        type: DataTypes.TINYINT.UNSIGNED,
-        allowNull: false,
-      },
-      hstart: {
-        type: DataTypes.TINYINT.UNSIGNED,
-        allowNull: false,
-      },
-      mstart: {
-        type: DataTypes.TINYINT.UNSIGNED,
-        allowNull: false,
-      },
-      hend: {
-        type: DataTypes.TINYINT.UNSIGNED,
-        allowNull: false,
-      },
-      mend: {
-        type: DataTypes.TINYINT.UNSIGNED,
+      dateEnd: {
+        type: DataTypes.DATE,
         allowNull: false,
       },
       comments: {

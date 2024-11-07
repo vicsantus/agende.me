@@ -25,32 +25,12 @@ module.exports = {
           key: 'id',
         },
       },
-      year: {
-        type: Sequelize.INTEGER,
+      dateStart: {
+        type: Sequelize.DATE,
         allowNull: false,
       },
-      mounth: {
-        type: Sequelize.TINYINT.UNSIGNED,
-        allowNull: false,
-      },
-      day: {
-        type: Sequelize.TINYINT.UNSIGNED,
-        allowNull: false,
-      },
-      hstart: {
-        type: Sequelize.TINYINT.UNSIGNED,
-        allowNull: false,
-      },
-      mstart: {
-        type: Sequelize.TINYINT.UNSIGNED,
-        allowNull: false,
-      },
-      hend: {
-        type: Sequelize.TINYINT.UNSIGNED,
-        allowNull: false,
-      },
-      mend: {
-        type: Sequelize.TINYINT.UNSIGNED,
+      dateEnd: {
+        type: Sequelize.DATE,
         allowNull: false,
       },
       comments: {
