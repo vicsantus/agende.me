@@ -1,5 +1,5 @@
 const Joi = require('joi');
-const { password, objectId } = require('./custom.validation');
+const { /* password,  */ objectId } = require('./custom.validation');
 
 const createSchedule = {
   body: Joi.object().keys({
@@ -25,11 +25,11 @@ const deleteSchedule = {
   }),
   params: Joi.object().keys({
     userId: Joi.string().required().custom(objectId),
-  })
-}
+  }),
+};
 
 module.exports = {
   createSchedule,
   deleteSchedule,
   getSchedule,
-}
+};

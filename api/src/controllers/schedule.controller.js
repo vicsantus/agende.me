@@ -1,11 +1,11 @@
 const httpStatus = require('http-status');
-const pick = require('../utils/pick');
+// const pick = require('../utils/pick');
 const ApiError = require('../utils/ApiError');
 const catchAsync = require('../utils/catchAsync');
 const { scheduleService } = require('../services');
 
 const createSchedule = catchAsync(async (req, res) => {
-  const bodySchedule = { ...req.body, owner: req.params.userId }
+  const bodySchedule = { ...req.body, owner: req.params.userId };
   const schedule = await scheduleService.createSchedule(bodySchedule, req.params.userId);
   res.status(httpStatus.CREATED).send(schedule);
 });
@@ -19,7 +19,7 @@ const createSchedule = catchAsync(async (req, res) => {
 
 const getSchedule = catchAsync(async (req, res) => {
   // const user = await userService.getUserById(req.params.userId);
-  const schedule = await scheduleService.getScheduleByOwner(req.params.userId)
+  const schedule = await scheduleService.getScheduleByOwner(req.params.userId);
   if (!schedule) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Schedule not found');
   }

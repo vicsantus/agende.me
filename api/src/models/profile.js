@@ -40,7 +40,7 @@ module.exports = (sequelize, DataTypes) => {
       tags: {
         type: DataTypes.STRING(90),
         allowNull: false,
-        defaultValue: "[]"
+        defaultValue: '[]',
       },
     },
     {

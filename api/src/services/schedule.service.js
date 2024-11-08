@@ -1,6 +1,6 @@
 const httpStatus = require('http-status');
 const { Op } = require('sequelize');
-const { User, FreeSchedule } = require('../models');
+const { /* User,  */ FreeSchedule } = require('../models');
 const ApiError = require('../utils/ApiError');
 
 // const isEmailTaken = async (email, userId) => {
@@ -15,6 +15,15 @@ const ApiError = require('../utils/ApiError');
 // const getUserByEmail = async (email) => {
 //   return User.findOne({ where: { email } });
 // };
+
+/**
+ * Get user by id
+ * @param {UUID} id
+ * @returns {Promise<FreeSchedule>}
+ */
+const getScheduleByOwner = async (id) => {
+  return FreeSchedule.findAll({ where: { owner: id } });
+};
 
 function isDateRangeConflict(existingRange, newRange) {
   const existingStart = new Date(existingRange.dateStart);
@@ -33,7 +42,7 @@ const checkDates = async (newDate, userId) => {
       return true;
     }
   }
-}
+};
 
 /**
  * Create a user
@@ -67,15 +76,6 @@ const createSchedule = async (userBody, userId) => {
 //   return users;
 // };
 
-/**
- * Get user by id
- * @param {UUID} id
- * @returns {Promise<FreeSchedule>}
- */
-const getScheduleByOwner = async (id) => {
-  return FreeSchedule.findAll({ where: { owner: id } })
-};
-
 // /**
 //  * Update user by id
 //  * @param {ObjectId} userId
@@ -106,8 +106,8 @@ const deleteScheduleById = async (userId, date) => {
     where: {
       owner: userId,
       dateStart: { [Op.lte]: date },
-      dateEnd: { [Op.gte]: date }
-    }
+      dateEnd: { [Op.gte]: date },
+    },
   });
   if (!schedule) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Schedule not found');
@@ -116,8 +116,8 @@ const deleteScheduleById = async (userId, date) => {
     where: {
       owner: userId,
       dateStart: { [Op.lte]: date },
-      dateEnd: { [Op.gte]: date }
-    }
+      dateEnd: { [Op.gte]: date },
+    },
   });
   return schedule;
 };
@@ -125,5 +125,5 @@ const deleteScheduleById = async (userId, date) => {
 module.exports = {
   getScheduleByOwner,
   createSchedule,
-  deleteScheduleById
+  deleteScheduleById,
 };

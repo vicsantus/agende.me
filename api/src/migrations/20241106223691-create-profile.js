@@ -1,4 +1,3 @@
-
 module.exports = {
   up: async (queryInterface, Sequelize) => {
     await queryInterface.createTable('Profiles', {
@@ -24,7 +23,7 @@ module.exports = {
       tags: {
         type: Sequelize.STRING,
         allowNull: false,
-        defaultValue: "[]"
+        defaultValue: '[]',
       },
       createdAt: {
         allowNull: false,

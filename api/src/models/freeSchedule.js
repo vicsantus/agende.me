@@ -53,7 +53,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: 'FreeSchedule',
-      tableName: "FreeSchedules",
+      tableName: 'FreeSchedules',
       timestamps: true,
       paranoid: false,
     }
