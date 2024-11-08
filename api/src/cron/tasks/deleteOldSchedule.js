@@ -3,7 +3,7 @@
 
 module.exports = {
   name: 'deleteExpiredSchedules',
-  cron: '*/1 * * * * *',  // 0 * * * * para cada uma hora
+  cron: '0 * * * *',  // 0 * * * * para cada uma hora / */1 * * * * * para a cada segundo
   process: async () => {
     const currentDate = new Date();
     console.log(currentDate, "currentDate");
