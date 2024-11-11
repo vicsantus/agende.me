@@ -54,6 +54,9 @@ const createSchedule = async (userBody, userId) => {
   if (await checkDates({ dateStart: userBody.dateStart, dateEnd: userBody.dateEnd }, userId)) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Date already taken');
   }
+  if (new Date(userBody.dateEnd) < new Date()) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'End date has passed!');
+  }
   const schedule = await FreeSchedule.create(userBody);
   return schedule;
 };
@@ -122,8 +125,33 @@ const deleteScheduleById = async (userId, date) => {
   return schedule;
 };
 
+/**
+ * Delete old schedules
+ * @returns {Promise<Boolean>}
+ */
+const deleteOldSchedule = async () => {
+  const date = new Date();
+  console.log(date, 'date');
+
+  const schedule = await FreeSchedule.findOne({
+    where: {
+      dateEnd: { [Op.lt]: date },
+    },
+  });
+  if (!schedule) {
+    return false;
+  }
+  await FreeSchedule.destroy({
+    where: {
+      dateEnd: { [Op.lt]: date },
+    },
+  });
+  return true;
+};
+
 module.exports = {
   getScheduleByOwner,
   createSchedule,
   deleteScheduleById,
+  deleteOldSchedule,
 };

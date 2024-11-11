@@ -1,26 +1,25 @@
-// const { Schedule } = require('../models'); // Ajuste para o caminho do seu modelo Sequelize
-// const Sequelize = require('sequelize');
+const chalk = require('chalk');
+
+const { deleteOldSchedule } = require('../../services/schedule.service');
 
 module.exports = {
   name: 'deleteExpiredSchedules',
-  cron: '0 * * * *',  // 0 * * * * para cada uma hora / */1 * * * * * para a cada segundo
+  cron: '*/1 * * * *', // 0 * * * * para cada uma hora / */1 * * * * * para a cada segundo
   process: async () => {
-    const currentDate = new Date();
-    console.log(currentDate, "currentDate");
-    
+    console.log(chalk.green('RODANDO CRON PARA APAGAR AGENDAMENTOS EXPIRADOS'));
 
     try {
-      // const deletedSchedules = await Schedule.destroy({
-      //   where: {
-      //     dateEnd: {
-      //       [Sequelize.Op.lt]: currentDate,
-      //     },
-      //   },
-      // });
+      const scheduleDeleted = await deleteOldSchedule();
 
-      // console.log(`${deletedSchedules} schedules deletados!`);
+      if (scheduleDeleted) {
+        console.log(chalk.hex('#2de0c2')('Agendas antigas deletadas'));
+      } else {
+        console.log(chalk.hex('#2de0c2')('Não existem agendas antigas'));
+      }
     } catch (error) {
-      console.error('Erro ao deletar schedules expirados:', error);
+      console.error(chalk.red('Erro ao deletar schedules expirados:'), error);
+    } finally {
+      console.log(chalk.yellowBright('CRON deleteExpiredSchedules FINALIZADO!'));
     }
-  }
+  },
 };

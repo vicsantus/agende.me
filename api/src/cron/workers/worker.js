@@ -1,10 +1,10 @@
 const { Queue, Worker } = require('bullmq');
 const Redis = require('ioredis');
+const chalk = require('chalk');
 const tasks = require('../init');
 
-const HOST = process.env.REDIS_HOST
-const PORT = process.env.REDIS_PORT
-
+const HOST = process.env.REDIS_HOST;
+const PORT = process.env.REDIS_PORT;
 
 const connection = new Redis({
   host: HOST,
@@ -13,12 +13,14 @@ const connection = new Redis({
 });
 
 const queue = new Queue('myQueue', {
-  connection
+  connection,
 });
 
 tasks.forEach((task) => {
   queue.add(task.name, {}, { repeat: { cron: task.cron } });
-  console.log(`Task "${task.name}" registrada para rodar com cron: ${task.cron}`);
+  console.log(
+    chalk.magentaBright(`Task "${chalk.bold(task.name)}" registrada para rodar com cron: ${chalk.bold(task.cron)}`)
+  );
 });
 
 tasks.forEach((task) => {

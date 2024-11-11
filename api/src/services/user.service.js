@@ -1,6 +1,6 @@
 const httpStatus = require('http-status');
-const { Op } = require('sequelize');
-const { User } = require('../models');
+const { Op, Sequelize } = require('sequelize');
+const { User, Profile } = require('../models');
 const ApiError = require('../utils/ApiError');
 
 const isEmailTaken = async (email, userId) => {
@@ -26,6 +26,7 @@ const createUser = async (userBody) => {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Email already taken');
   }
   const user = await User.create(userBody);
+  await createProfile({user: user.id, profile: ' ', tags: '[]'});
   return user;
 };
 
@@ -89,6 +90,117 @@ const deleteUserById = async (userId) => {
   return user;
 };
 
+/**
+ * Create user profile
+ * @param {Object} profileData
+ * @param {String} profileData.profile
+ * @param {UUID} profileData.user
+ * @param {String} profileData.tags
+ * @returns {Promise<Profile>}
+ */
+const createProfile = async (profileData) => {
+  const profile = await Profile.create(profileData);
+  return profile;
+};
+
+/**
+ * Get user profile by id
+ * @param {UUID} id
+ * @returns {Promise<Profile> | Error}
+ */
+const getProfileById = async (id) => {
+  const profile = await Profile.findByPk(id);
+  if (!profile) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Profile not found');
+  }
+  return profile;
+};
+
+/**
+ * Get user profile by user id
+ * @param {UUID} id
+ * @returns {Promise<Profile> | Promise<Error>}
+ */
+const getProfileByUserId = async (id) => {
+  const profile = await Profile.findOne({where: {user: id}});
+  if (!profile) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Profile not found');
+  }
+  return profile;
+};
+
+/**
+ * Get user profile by id
+ * @param {UUID} id
+ * @returns {Promise<Profile> | Error}
+ */
+const getUserByProfile = async (query) => {
+  const profile = await Profile.findAll({
+    where: {
+      [Op.or]: [{ profile: { [Op.like]: `%${query}%` } }, { tags: { [Op.like]: `%${query}%` } }],
+    },
+    include: [
+      {
+        model: User,
+        as: 'userProfile',
+        attributes: ['id', 'firstName', 'lastName', 'email'],
+        where: {
+          [Op.or]: [
+            { firstName: { [Op.like]: `%${query}%` } },
+            { lastName: { [Op.like]: `%${query}%` } },
+            { email: { [Op.like]: `%${query}%` } },
+          ],
+        },
+      },
+    ],
+    order: [
+      [Sequelize.literal(`CASE WHEN "userDetails"."firstName" LIKE '%${query}%' THEN 1 ELSE 0 END`), 'DESC'],
+      [Sequelize.literal(`CASE WHEN "Profile"."tags" LIKE '%${query}%' THEN 1 ELSE 0 END`), 'DESC'],
+      [Sequelize.literal(`CASE WHEN "Profile"."profile" LIKE '%${query}%' THEN 1 ELSE 0 END`), 'DESC'],
+    ],
+  });
+  if (!profile || profile.length <= 0) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Profile not found');
+  }
+  return profile;
+};
+
+/**
+ * Update user profile by user id
+ * @param {ObjectId} userId
+ * @param {Object} updateBody
+ * @returns {Promise<Profile>}
+ */
+const updateProfileByUserId = async (userId, updateBody) => {
+  const user = await getUserById(userId);
+  if (!user) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
+  }
+  try {
+    const profile = await getProfileByUserId(userId);
+    Object.assign(profile, updateBody);
+    await profile.save();
+    return profile;
+  } catch (error) {
+    const profile = await createProfile({...updateBody, user: userId})
+    return profile;
+  }
+};
+
+/**
+ * Delete user profile by id
+ * @param {ObjectId} userId
+ * @returns {Promise<User>}
+ */
+const deleteProfileByUserId = async (userId) => {
+  const profile = await getProfileByUserId(userId);
+  if (!profile) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Profile not found');
+  }
+  await Profile.destroy({ where: { id: userId } });
+  return profile;
+};
+
 module.exports = {
   createUser,
   queryUsers,
@@ -96,4 +208,10 @@ module.exports = {
   getUserByEmail,
   updateUserById,
   deleteUserById,
+  createProfile,
+  getProfileById,
+  getUserByProfile,
+  updateProfileByUserId,
+  getProfileByUserId,
+  deleteProfileByUserId,
 };

@@ -49,6 +49,7 @@ services:
     platform: linux/x86_64
     restart: 'always'
     working_dir: /api
+    tty: true
     # command: sh -c "echo "foi" && npm run migrate"
     volumes:
       - ./api:/api

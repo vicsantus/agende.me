@@ -71,7 +71,7 @@ const generateAuthTokens = async (user) => {
 
   const refreshTokenExpires = moment().add(config.jwt.refreshExpirationDays, 'days');
   const refreshToken = generateToken(user.id, refreshTokenExpires, tokenTypes.REFRESH);
-  await Token.destroy({ where: {user: user.id} });
+  await Token.destroy({ where: { user: user.id } });
   await saveToken(refreshToken, user.id, refreshTokenExpires, tokenTypes.REFRESH);
 
   return {
