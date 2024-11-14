@@ -9,7 +9,10 @@ import ModalWarnings from '../components/atoms/ModalWarnings';
 import Select from '../components/atoms/Select';
 import {useGeneralContext} from '../context/UserContext';
 import {criarUser, loginUser} from '../utils/fetchApi';
-import {saveAcessTokenInStorage} from '../utils/localStorage';
+import {
+  saveAcessTokenInStorage,
+  saveDataInStorage,
+} from '../utils/localStorage';
 import {
   validateEmail,
   validateName,
@@ -40,7 +43,7 @@ export default function Login({login, route}) {
   const emailRef = useRef();
   const senhaRef = useRef();
   const tipoRef = useRef();
-  const {setLoading} = useGeneralContext();
+  const {setLoading, setIslogged, setUser} = useGeneralContext();
   const navigation = useNavigation();
 
   const cleanErrors = () => {
@@ -108,14 +111,16 @@ export default function Login({login, route}) {
     try {
       if (isLogin) {
         const user = await loginUser(email, senha);
-        console.log(user);
         await saveAcessTokenInStorage(
           user?.tokens?.access?.token,
           user?.tokens?.refresh?.token,
         );
+        await saveDataInStorage('user', {...user, tokens: null});
+        setUser({...user, tokens: null});
 
+        setIslogged(true);
         setLoading(false);
-        navigation.navigate('Agenda');
+        // navigation.navigate('Main');
       } else {
         const user = await criarUser(
           email,
@@ -124,14 +129,16 @@ export default function Login({login, route}) {
           nome.split(' ').at(-1),
           tipo.id,
         );
-        console.log(user);
         await saveAcessTokenInStorage(
           user?.tokens?.access?.token,
           user?.tokens?.refresh?.token,
         );
 
+        await saveDataInStorage('user', {...user, tokens: null});
+        setUser({...user, tokens: null});
+        setIslogged(true);
         setLoading(false);
-        navigation.navigate('Agenda');
+        // navigation.navigate('Main');
       }
     } catch (error) {
       console.log(error);

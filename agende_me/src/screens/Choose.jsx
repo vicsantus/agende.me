@@ -18,7 +18,7 @@ export default function Choose() {
     setLoading(true);
     getSessionInLocalStorage()
       .then(e => {
-        console.log(e, 'User in localstorage');
+        // console.log(e, 'User in localstorage');
         if (e?.accessToken && e?.refreshToken) {
           setIslogged(true);
         }

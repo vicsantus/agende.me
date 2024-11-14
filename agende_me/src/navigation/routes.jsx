@@ -7,6 +7,7 @@ import {useGeneralContext} from '../context/UserContext';
 import Agenda from '../screens/Agenda';
 import Choose from '../screens/Choose';
 import Login from '../screens/Login';
+import Main from '../screens/Main';
 
 // import { getDataInsInStorage, getTokensInStorage } from "../utils/localStorage";
 
@@ -60,19 +61,24 @@ export default function Routes() {
               initialParams={{login: true}}
               options={screenOptions}
             />
-            <Stack.Screen
-              name="Agenda"
-              component={Agenda}
+            {/* <Stack.Screen
+              name="Main"
+              component={Main}
               options={screenOptions}
-            />
+            /> */}
           </Stack.Navigator>
         </NavigationContainer>
       ) : (
-        <NavigationContainer initialRouteName={'Agenda'}>
+        <NavigationContainer initialRouteName={'Main'}>
           <Stack.Navigator
             screenOptions={{
               gestureEnabled: false,
             }}>
+            <Stack.Screen
+              name="Main"
+              component={Main}
+              options={screenOptions}
+            />
             <Stack.Screen
               name="Agenda"
               component={Agenda}

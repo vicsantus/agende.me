@@ -1,5 +1,6 @@
 import React, {useEffect} from 'react';
 import {SafeAreaView, StyleSheet, Text, View} from 'react-native';
+import Header from '../components/organisms/Header';
 import {useGeneralContext} from '../context/UserContext';
 import {getTokensInStorage} from '../utils/localStorage';
 
@@ -26,11 +27,14 @@ export default function Agenda() {
   }, []);
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.main}>
-        <Text style={styles.text}>Agenda</Text>
-      </View>
-    </SafeAreaView>
+    <>
+      <Header />
+      <SafeAreaView style={styles.container}>
+        <View style={styles.main}>
+          <Text style={styles.text}>Agenda</Text>
+        </View>
+      </SafeAreaView>
+    </>
   );
 }
 
