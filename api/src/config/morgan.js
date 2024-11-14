@@ -1,8 +1,41 @@
 const morgan = require('morgan');
 const config = require('./config');
 const logger = require('./logger');
+const chalk = require('chalk');
 
 morgan.token('message', (req, res) => res.locals.errorMessage || '');
+
+morgan.token("method", (req, _) => {
+  const method = req.method;
+  const color =
+    method === "POST"
+      ? "red"
+      : method === "GET"
+        ? "green"
+        : method === "OPTIONS"
+          ? "yellow"
+          : "bgRed"
+
+  return chalk[color](method.toString());
+});
+
+morgan.token("status", (_, res) => {
+  const status = res.statusCode;
+  const color =
+    status >= 500
+      ? "red"
+      : status >= 400
+        ? "yellow"
+        : status >= 300
+          ? "cyan"
+          : status >= 200
+            ? "green"
+            : "bold";
+
+  return chalk[color](status.toString());
+});
+
+morgan.token("url", (req, _) => chalk.magenta(req.url));
 
 const getIpFormat = () => (config.env === 'production' ? ':remote-addr - ' : '');
 const successResponseFormat = `${getIpFormat()}:method :url :status - :response-time ms`;
