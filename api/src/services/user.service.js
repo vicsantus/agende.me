@@ -26,7 +26,7 @@ const createUser = async (userBody) => {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Email already taken');
   }
   const user = await User.create(userBody);
-  await createProfile({user: user.id, profile: ' ', tags: '[]'});
+  await createProfile({user: user.id});
   return user;
 };
 
@@ -131,39 +131,121 @@ const getProfileByUserId = async (id) => {
 
 /**
  * Get user profile by id
- * @param {UUID} id
- * @returns {Promise<Profile> | Error}
+ * @param {String} query
+ * @param {Object} options
+ * @returns {Promise<User> | Error}
  */
-const getUserByProfile = async (query) => {
-  const profile = await Profile.findAll({
+const getUserByProfile = async (query, options) => {
+  const limit = options.limit ? options.limit : undefined;
+  const offset = options.page && options.limit ? (options.page - 1) * options.limit : undefined;
+
+  // Converte o query para minúsculas
+  const searchQuery = query.toLowerCase();
+
+  // Primeira busca: pesquisa nos campos de User
+  const usersFromUserSearch = await User.findAll({
     where: {
-      [Op.or]: [{ profile: { [Op.like]: `%${query}%` } }, { tags: { [Op.like]: `%${query}%` } }],
+      [Op.or]: [
+        Sequelize.where(Sequelize.fn('LOWER', Sequelize.col('firstName')), Op.like, `%${searchQuery}%`),
+        Sequelize.where(Sequelize.fn('LOWER', Sequelize.col('lastName')), Op.like, `%${searchQuery}%`),
+        Sequelize.where(Sequelize.fn('LOWER', Sequelize.col('email')), Op.like, `%${searchQuery}%`)
+      ],
+      role: options.role || 'admin',
+    },
+    attributes: ['id'],
+  });
+
+  // Segunda busca: pesquisa nos campos de Profile
+  const usersFromProfileSearch = await Profile.findAll({
+    where: {
+      [Op.or]: [
+        Sequelize.where(Sequelize.fn('LOWER', Sequelize.col('profile')), Op.like, `%${searchQuery}%`),
+        Sequelize.where(Sequelize.fn('LOWER', Sequelize.col('tags')), Op.like, `%${searchQuery}%`)
+      ],
+    },
+    attributes: ['user'],
+  });
+
+  // Extrai IDs de usuários encontrados em ambas as buscas
+  const userIdsFromUserSearch = usersFromUserSearch.map(user => user.id);
+  const userIdsFromProfileSearch = usersFromProfileSearch.map(profile => profile.user);
+
+  // Combina os IDs sem duplicatas
+  const combinedUserIds = [...new Set([...userIdsFromUserSearch, ...userIdsFromProfileSearch])];
+
+  // Busca final, trazendo os dados completos dos usuários com os IDs combinados
+  const users = await User.findAll({
+    where: {
+      id: combinedUserIds
     },
     include: [
       {
-        model: User,
-        as: 'userProfile',
-        attributes: ['id', 'firstName', 'lastName', 'email'],
-        where: {
-          [Op.or]: [
-            { firstName: { [Op.like]: `%${query}%` } },
-            { lastName: { [Op.like]: `%${query}%` } },
-            { email: { [Op.like]: `%${query}%` } },
-          ],
-        },
+        model: Profile,
+        as: 'profileUser',
+        attributes: ['id', 'profile', 'tags'],
       },
     ],
     order: [
-      [Sequelize.literal(`CASE WHEN "userDetails"."firstName" LIKE '%${query}%' THEN 1 ELSE 0 END`), 'DESC'],
-      [Sequelize.literal(`CASE WHEN "Profile"."tags" LIKE '%${query}%' THEN 1 ELSE 0 END`), 'DESC'],
-      [Sequelize.literal(`CASE WHEN "Profile"."profile" LIKE '%${query}%' THEN 1 ELSE 0 END`), 'DESC'],
+      [Sequelize.literal(`CASE WHEN LOWER(User.firstName) LIKE '%${searchQuery}%' THEN 1 ELSE 0 END`), 'DESC'],
+      [Sequelize.literal(`CASE WHEN LOWER(User.lastName) LIKE '%${searchQuery}%' THEN 1 ELSE 0 END`), 'DESC'],
+      [Sequelize.literal(`CASE WHEN LOWER(User.email) LIKE '%${searchQuery}%' THEN 1 ELSE 0 END`), 'DESC'],
+      [Sequelize.literal(`CASE WHEN LOWER(profileUser.tags) LIKE '%${searchQuery}%' THEN 1 ELSE 0 END`), 'DESC'],
+      [Sequelize.literal(`CASE WHEN LOWER(profileUser.profile) LIKE '%${searchQuery}%' THEN 1 ELSE 0 END`), 'DESC'],
     ],
+    ...(limit && { limit }),
+    ...(offset && { offset }),
   });
-  if (!profile || profile.length <= 0) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'Profile not found');
+
+  if (users.length === 0) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
   }
-  return profile;
+
+  return users;
 };
+
+// const getUserByProfile = async (query, options) => {
+//   const limit = options.limit ? options.limit : undefined;
+//   const offset = options.page && options.limit ? (options.page - 1) * options.limit : undefined;
+
+//   const user = await User.findAll({
+//     where: {
+//       [Op.or]: [
+//         Sequelize.where(Sequelize.fn('LOWER', Sequelize.col('firstName')), Op.like, `%${query.toLowerCase()}%`),
+//         Sequelize.where(Sequelize.fn('LOWER', Sequelize.col('lastName')), Op.like, `%${query.toLowerCase()}%`),
+//         Sequelize.where(Sequelize.fn('LOWER', Sequelize.col('email')), Op.like, `%${query.toLowerCase()}%`)
+//       ],
+//       role: options.role || 'admin',
+//     },
+//     include: [
+//       {
+//         model: Profile,
+//         as: 'profileUser',
+//         attributes: ['id', 'profile', 'tags'],
+//         where: {
+//           [Op.or]: [
+//             Sequelize.where(Sequelize.fn('LOWER', Sequelize.col('profileUser.profile')), Op.like, `%${query.toLowerCase()}%`),
+//             Sequelize.where(Sequelize.fn('LOWER', Sequelize.col('profileUser.tags')), Op.like, `%${query.toLowerCase()}%`)
+//           ],
+//         },
+//       },
+//     ],
+//     order: [
+//       [Sequelize.literal(`CASE WHEN LOWER(User.firstName) LIKE '%${query.toLowerCase()}%' THEN 1 ELSE 0 END`), 'DESC'],
+//       [Sequelize.literal(`CASE WHEN LOWER(User.lastName) LIKE '%${query.toLowerCase()}%' THEN 1 ELSE 0 END`), 'DESC'],
+//       [Sequelize.literal(`CASE WHEN LOWER(User.email) LIKE '%${query.toLowerCase()}%' THEN 1 ELSE 0 END`), 'DESC'],
+//       [Sequelize.literal(`CASE WHEN LOWER(profileUser.tags) LIKE '%${query.toLowerCase()}%' THEN 1 ELSE 0 END`), 'DESC'],
+//       [Sequelize.literal(`CASE WHEN LOWER(profileUser.profile) LIKE '%${query.toLowerCase()}%' THEN 1 ELSE 0 END`), 'DESC'],
+//     ],
+//     ...(limit && { limit }),
+//     ...(offset && { offset })
+//   });
+  
+
+//   if (!user) {
+//     throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
+//   }
+//   return user;
+// };
 
 /**
  * Update user profile by user id

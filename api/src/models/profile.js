@@ -36,11 +36,23 @@ module.exports = (sequelize, DataTypes) => {
       profile: {
         type: DataTypes.STRING(300),
         allowNull: false,
+        defaultValue: ' ',
       },
       tags: {
         type: DataTypes.STRING(90),
         allowNull: false,
         defaultValue: '[]',
+        get() {
+          const rawValue = this.getDataValue('tags');
+          return JSON.parse(rawValue);
+        },
+        set(value) {
+          if (Array.isArray(value)) {
+            this.setDataValue('tags', JSON.stringify(value));
+          } else {
+            this.setDataValue('tags', value);
+          }
+        }
       },
     },
     {
@@ -48,6 +60,14 @@ module.exports = (sequelize, DataTypes) => {
       modelName: 'Profile',
       timestamps: true,
       paranoid: true,
+      hooks: {
+        beforeCreate(profile) {
+          profile.tags = profile.tags ? JSON.stringify(profile.tags) : '[]';
+        },
+        beforeUpdate(profile) {
+          profile.tags = profile.tags ? JSON.stringify(profile.tags) : '[]';
+        },
+      },
     }
   );
   return Profile;
