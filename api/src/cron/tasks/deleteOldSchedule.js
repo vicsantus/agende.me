@@ -4,7 +4,7 @@ const { deleteOldSchedule } = require('../../services/schedule.service');
 
 module.exports = {
   name: 'deleteExpiredSchedules',
-  cron: '*/1 * * * *', // 0 * * * * para cada uma hora / */1 * * * * * para a cada segundo
+  cron: '*/10 * * * *', // 0 * * * * para cada uma hora / */1 * * * * * para a cada segundo
   process: async () => {
     console.log(chalk.green('RODANDO CRON PARA APAGAR AGENDAMENTOS EXPIRADOS'));
 
