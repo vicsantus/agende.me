@@ -46,11 +46,11 @@ export default function Header() {
         })
         .finally(() => setLoading(false));
     }
-    console.log(user, 'user');
+    // console.log(user, 'user');
     setFullname(`${user?.user?.firstName} ${user?.user?.lastName}`);
 
     setLoading(false);
-    console.log(fullname);
+    // console.log(fullname);
   }, []);
 
   return (
@@ -60,7 +60,10 @@ export default function Header() {
           <View style={styles.userStatus}> */}
         {fullname ? (
           <>
-            <Text style={styles.activityBtnText}>{fullname}</Text>
+            <Text style={{...styles.activityBtnText, textTransform: 'none'}}>
+              Bem vindo(a){' '}
+              <Text style={styles.activityBtnText}>{fullname}!</Text>
+            </Text>
             <BtnPrimary
               text="Sair"
               textStyle={{fontSize: 13}}
