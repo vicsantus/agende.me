@@ -51,10 +51,12 @@ const queryUsers = async (filter, options, conditions) => {
 /**
  * Get user by id
  * @param {UUID} id
- * @returns {Promise<User>}
+ * @returns {Promise<{user: User, profile: Profile}>}
  */
 const getUserById = async (id) => {
-  return User.findByPk(id);
+  const user = await User.findByPk(id);
+  const profile = await getProfileByUserId(id);
+  return { user, profile }
 };
 
 /**

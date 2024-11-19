@@ -98,7 +98,9 @@ export default function Main() {
                     <TouchableHighlight
                       style={styles.touchable}
                       underlayColor="#e0e0e0"
-                      onPress={() => console.log('Usuário clicado:', item.id)}>
+                      onPress={() =>
+                        navigation.navigate('Profile', {userId: item.id})
+                      }>
                       <View>
                         <Text style={styles.text}>
                           {item.firstName} {item.lastName}

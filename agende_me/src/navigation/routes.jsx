@@ -8,6 +8,7 @@ import Agenda from '../screens/Agenda';
 import Choose from '../screens/Choose';
 import Login from '../screens/Login';
 import Main from '../screens/Main';
+import Profile from '../screens/Profile';
 
 // import { getDataInsInStorage, getTokensInStorage } from "../utils/localStorage";
 
@@ -82,6 +83,11 @@ export default function Routes() {
             <Stack.Screen
               name="Agenda"
               component={Agenda}
+              options={screenOptions}
+            />
+            <Stack.Screen
+              name="Profile"
+              component={Profile}
               options={screenOptions}
             />
           </Stack.Navigator>

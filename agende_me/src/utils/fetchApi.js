@@ -174,7 +174,24 @@ async function searchAdmins(input, data) {
   }
 }
 
+async function findUser(userId) {
+  try {
+    // const data = {
+    //   email, password
+    // }
+    const user = await axios.get(
+      `${URL_API}/v1/users/${userId}`
+    )
+    return user.data;
+  } catch (error) {
+    console.log(error);
+    return false
+  }
+}
+
 export {
-  criarUser,
-  loginUser, refreshTokens, searchAdmins
+  criarUser, findUser, loginUser,
+  refreshTokens,
+  searchAdmins
 };
+
