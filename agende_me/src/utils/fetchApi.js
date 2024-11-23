@@ -1,4 +1,5 @@
 import axios from "axios";
+import { DeviceEventEmitter } from "react-native";
 const env = require("../../env.js")
 const localStorage = require("./localStorage");
 
@@ -48,22 +49,26 @@ axios.interceptors.response.use(
     if (error.response.status === 401 && error.response.data.message === 'Please authenticate') {
       localStorage.getTokensInStorage().then(async (e) => {
         if (e?.refreshToken) {
+          
           const user = await refreshTokens(e.refreshToken)
+          // console.log(JSON.stringify(user, null, 2), "user?.config");
 
-          if (['refresh-tokens'].includes(user?.config?.url)) {
-            const response = user?.config?.data?.refreshToken ?
-            await localStorage.saveAcessTokenInStorage(
-              user?.access?.token,
-              user?.refresh?.token,
-            ) : await localStorage.clearTokensInStorage();
-            return response;
-          }
+          // if (['refresh-tokens'].includes(user?.config?.url)) {
+          //   const response = user?.refresh?.token ?
+          //   await localStorage.saveAcessTokenInStorage(
+          //     user?.access?.token,
+          //     user?.refresh?.token,
+          //   ) : DeviceEventEmitter.emit("LOGOUT");
+          //   return response;
+          // }
 
           if (user?.access?.token) {            
             await localStorage.saveAcessTokenInStorage(
               user?.access?.token,
               user?.refresh?.token,
             );
+          } else {
+            DeviceEventEmitter.emit("LOGOUT")
           }
         }
       }).catch((e) => e)
@@ -189,9 +194,77 @@ async function findUser(userId) {
   }
 }
 
+async function getSchedule(userId) {
+  try {
+    // const data = {
+    //   email, password
+    // }
+    const schedules = await axios.get(
+      `${URL_API}/v1/schedule/${userId}`
+    )
+    return schedules.data;
+  } catch (error) {
+    console.log(error);
+    return false
+  }
+}
+
+async function createNewSchedules(userId, dateStart, dateEnd, comments) {
+  try {
+    const user = await localStorage.getDataInsInStorage('user');
+    
+    const data = {
+      dateStart, dateEnd, responsible: user.user.id, comments: comments ? comments : " "
+    }
+    const schedules = await axios.post(
+      `${URL_API}/v1/schedule/${userId}`, data
+    )
+    return schedules.data;
+  } catch (error) {
+    console.log(error);
+    return error
+  }
+}
+
+async function validSchedule(userId, dateStart, dateEnd) {
+  try {
+    const data = {
+      dateStart, dateEnd
+    }
+    const schedules = await axios.post(
+      `${URL_API}/v1/schedule/validation/${userId}`, data
+    )
+    return schedules.data;
+  } catch (error) {
+    console.log(error);
+    return error
+  }
+}
+
+async function deleteSchedule(userId, date) {
+  try {
+    console.log(date, "%%%%%%%%%5");
+    
+    // const data = {
+    //   date
+    // }
+    const newDate = new Date(date)
+    // newDate.setHours(newDate.getHours() - 3)
+    newDate.setSeconds(5)
+    const schedules = await axios.delete(
+      `${URL_API}/v1/schedule/${userId}?date=${newDate.toISOString().split('.')[0]}`
+    )
+    return schedules.data;
+  } catch (error) {
+    console.log(error);
+    return error
+  }
+}
+
 export {
-  criarUser, findUser, loginUser,
+  createNewSchedules, criarUser, deleteSchedule, findUser, getSchedule, loginUser,
   refreshTokens,
-  searchAdmins
+  searchAdmins,
+  validSchedule
 };
 

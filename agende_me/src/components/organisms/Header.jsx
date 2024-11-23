@@ -1,16 +1,20 @@
 // import * as Sentry from "@sentry/react-native";
 import {useNavigation} from '@react-navigation/native';
 import React, {useEffect, useState} from 'react';
-import {StyleSheet, Text, View} from 'react-native';
+import {DeviceEventEmitter, StyleSheet, Text, View} from 'react-native';
 import {useGeneralContext} from '../../context/UserContext';
-import {getDataInsInStorage} from '../../utils/localStorage';
+import {
+  clearTokensInStorage,
+  getDataInsInStorage,
+} from '../../utils/localStorage';
 import BtnPrimary from '../atoms/BtnPrimary';
 import AdaptativeSkeleton from '../templates/AdaptativeSkeleton';
 
 // import ActionModal from './ActionModal';
 
 export default function Header() {
-  const {user, setUser, setLoading, islogged} = useGeneralContext();
+  const {user, setUser, setLoading, islogged, setIslogged} =
+    useGeneralContext();
   const [fullname, setFullname] = useState(false);
   const navigation = useNavigation();
   // const { resultHotspot } = useBackgroundFetch();
@@ -24,6 +28,17 @@ export default function Header() {
   // const {isActionModalVisible, setIsActionModalVisible} = useAppContext();
   // const [executedHotSpot, setExecutedHotSpot] = useState(false);
   // // const [previousTime, setPreviousTime] = useState(0);
+  const handleLogout = async () => {
+    setLoading(true);
+    await clearTokensInStorage();
+    setIslogged(false);
+    setLoading(false);
+  };
+
+  DeviceEventEmitter.addListener('LOGOUT', async () => {
+    await handleLogout();
+  });
+
   useEffect(() => {
     setLoading(true);
     if (!user) {
@@ -67,6 +82,7 @@ export default function Header() {
             <BtnPrimary
               text="Sair"
               textStyle={{fontSize: 13}}
+              onPress={handleLogout}
               style={{
                 backgroundColor: 'red',
                 width: 60,

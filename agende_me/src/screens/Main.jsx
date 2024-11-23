@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import BtnPrimary from '../components/atoms/BtnPrimary';
 import Input from '../components/atoms/Input';
+import Loading from '../components/atoms/Loading';
 import Header from '../components/organisms/Header';
 import DismissKeyboard from '../components/templates/DismissKeyboard';
 import {useGeneralContext} from '../context/UserContext';
@@ -18,8 +19,7 @@ import {getDataInsInStorage} from '../utils/localStorage';
 
 export default function Main() {
   const navigation = useNavigation();
-  const {setLoading, setIslogged, user, islogged, isloading} =
-    useGeneralContext();
+  const {setLoading, user, setUser, isloading} = useGeneralContext();
   const [input, setInput] = useState('');
   const [searchedUsers, setSearchedUsers] = useState([]);
 
@@ -32,14 +32,17 @@ export default function Main() {
 
   useEffect(() => {
     setLoading(true);
+    console.log(user, 'user$$$$$$$$$$$$');
     if (!user) {
       getDataInsInStorage('user')
         .then(e => {
           if (e?.user?.role) {
+            console.log(e, '##############3');
+
             const role = e?.user?.role;
             setUser(e);
             if (role === 'admin') {
-              navigation.navigate('Agenda');
+              navigation.navigate('Profile', {userId: e?.user?.id});
             } else {
               navigation.navigate('Main');
             }
@@ -47,12 +50,13 @@ export default function Main() {
           setLoading(false);
         })
         .catch(e => {
+          // DeviceEventEmitter.emit('LOGOUT');
           setLoading(false);
         })
         .finally(() => setLoading(false));
     } else {
-      if (user.user.role === 'admin') {
-        navigation.navigate('Agenda');
+      if (user?.user?.role === 'admin') {
+        navigation.navigate('Profile', {userId: user?.user?.id});
       } else {
         navigation.navigate('Main');
       }
@@ -64,7 +68,7 @@ export default function Main() {
     <>
       {/* {isloading && <Loading style={styles.loading} />} */}
       <Header />
-      {!isloading && (
+      {!isloading && user?.user?.role !== 'admin' && user ? (
         <DismissKeyboard>
           <SafeAreaView style={styles.container}>
             <View style={styles.main}>
@@ -130,6 +134,8 @@ export default function Main() {
             </View>
           </SafeAreaView>
         </DismissKeyboard>
+      ) : (
+        <Loading />
       )}
     </>
   );

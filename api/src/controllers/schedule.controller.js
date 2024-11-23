@@ -26,13 +26,18 @@ const getSchedule = catchAsync(async (req, res) => {
   res.send(schedule);
 });
 
+const validSchedule = catchAsync(async (req, res) => {
+  const isConflicted = await scheduleService.checkDates({ dateStart: req.body.dateStart, dateEnd: req.body.dateEnd }, req.params.userId)
+  return res.send(isConflicted)
+})
+
 // const updateUser = catchAsync(async (req, res) => {
 //   const user = await userService.updateUserById(req.params.userId, req.body);
 //   res.send(user);
 // });
 
 const deleteSchedule = catchAsync(async (req, res) => {
-  await scheduleService.deleteScheduleById(req.params.userId, req.body.date);
+  await scheduleService.deleteScheduleById(req.params.userId, req.query.date);
   res.status(httpStatus.NO_CONTENT).send();
 });
 
@@ -40,4 +45,5 @@ module.exports = {
   getSchedule,
   createSchedule,
   deleteSchedule,
+  validSchedule,
 };

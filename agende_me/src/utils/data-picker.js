@@ -45,6 +45,7 @@ export default class DatePicker extends PureComponent {
     // style: ViewPropTypes.style,
     // textColor: ColorPropType,
     textSize: PropTypes.number,
+    disabled: PropTypes.bool,
   };
 
   static defaultProps = {
@@ -61,6 +62,7 @@ export default class DatePicker extends PureComponent {
     style: null,
     textColor: '#333',
     textSize: 26,
+    disabled: false,
   };
 
   constructor(props) {
@@ -248,23 +250,23 @@ export default class DatePicker extends PureComponent {
     }
 
     return [
-      <View key='hour' style={styles.picker}>
-        <Picker
+      <View disabled={this.props.disabled} key='hour' style={styles.picker}>
+        {!this.props.disabled && <Picker
           ref={(hour) => { this.hourComponent = hour; }}
           {...propsStyles}
           selectedValue={this.state.date.getHours()}
           pickerData={hours}
           onValueChange={this.onHourChange}
-        />
+        />}
       </View>,
-      <View key='minute' style={styles.picker}>
-        <Picker
+      <View disabled={this.props.disabled} key='minute' style={styles.picker}>
+        {!this.props.disabled && <Picker
           ref={(minute) => { this.minuteComponent = minute; }}
           {...propsStyles}
           selectedValue={this.state.date.getMinutes()}
           pickerData={minutes}
           onValueChange={this.onMinuteChange}
-        />
+        />}
       </View>,
     ];
   }

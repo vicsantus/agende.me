@@ -1,6 +1,13 @@
 import {useNavigation} from '@react-navigation/native';
 import React, {useEffect, useState} from 'react';
-import {FlatList, SafeAreaView, StyleSheet, Text, View} from 'react-native';
+import {
+  BackHandler,
+  FlatList,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import Header from '../components/organisms/Header';
 import {useGeneralContext} from '../context/UserContext';
 import {findUser} from '../utils/fetchApi';
@@ -13,7 +20,7 @@ export default function Profile({
 }) {
   const navigation = useNavigation();
   // const {userId} = params;
-  const {setLoading, isloading} = useGeneralContext();
+  const {setLoading, isloading, user: actualUser} = useGeneralContext();
   const [user, setUser] = useState({});
   const [profile, setProfile] = useState({});
 
@@ -43,6 +50,25 @@ export default function Profile({
     }
   }, []);
 
+  useEffect(() => {
+    // Handler para interceptar o botão voltar
+    if (actualUser?.user?.role === 'admin') {
+      const backAction = () => {
+        // Alert.alert('Atenção', 'Você não pode voltar desta tela.');
+        return true; // Retorna true para prevenir a ação de voltar
+      };
+
+      // Adiciona o listener
+      const backHandler = BackHandler.addEventListener(
+        'hardwareBackPress',
+        backAction,
+      );
+
+      // Remove o listener ao desmontar o componente
+      return () => backHandler.remove();
+    }
+  }, [actualUser]);
+
   return (
     <>
       {/* {isloading && <Loading style={styles.loading} />} */}
@@ -62,7 +88,7 @@ export default function Profile({
                   {user?.email}
                 </Text>
                 <FlatList
-                  data={profile.tags}
+                  data={profile?.tags}
                   renderItem={({item: tag}) => (
                     <View style={styles.tag}>
                       <Text style={styles.tagText}>{tag}</Text>
@@ -75,7 +101,7 @@ export default function Profile({
               </View>
               <Text style={styles.h2}>{'Sobre:'}</Text>
               <View style={{marginLeft: 20}}>
-                <Text style={styles.text}>{profile.profile}</Text>
+                <Text style={styles.text}>{profile?.profile}</Text>
               </View>
             </View>
             {/* <BtnPrimary
@@ -85,7 +111,11 @@ export default function Profile({
               }}
               text="Registrar"
             /> */}
-            <Agenda />
+            <Agenda
+              userId={user.id}
+              setLoading={setLoading}
+              isTheOwner={user.id === actualUser.user.id}
+            />
           </View>
         </SafeAreaView>
       )}

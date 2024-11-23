@@ -1,5 +1,5 @@
 const httpStatus = require('http-status');
-const { Op } = require('sequelize');
+const { Op, Sequelize } = require('sequelize');
 const { /* User,  */ FreeSchedule } = require('../models');
 const ApiError = require('../utils/ApiError');
 
@@ -42,6 +42,7 @@ const checkDates = async (newDate, userId) => {
       return true;
     }
   }
+  return false
 };
 
 /**
@@ -108,8 +109,8 @@ const deleteScheduleById = async (userId, date) => {
   const schedule = await FreeSchedule.findOne({
     where: {
       owner: userId,
-      dateStart: { [Op.lte]: date },
-      dateEnd: { [Op.gte]: date },
+      [Op.and]: Sequelize.literal(`'${date}' >= \`FreeSchedule\`.\`dateStart\` AND \`FreeSchedule\`.\`dateEnd\` >= '${date}'`),
+
     },
   });
   if (!schedule) {
@@ -118,8 +119,8 @@ const deleteScheduleById = async (userId, date) => {
   await FreeSchedule.destroy({
     where: {
       owner: userId,
-      dateStart: { [Op.lte]: date },
-      dateEnd: { [Op.gte]: date },
+      [Op.and]: Sequelize.literal(`'${date}' >= \`FreeSchedules\`.\`dateStart\` AND \`FreeSchedules\`.\`dateEnd\` >= '${date}'`),
+
     },
   });
   return schedule;
@@ -154,4 +155,5 @@ module.exports = {
   createSchedule,
   deleteScheduleById,
   deleteOldSchedule,
+  checkDates,
 };

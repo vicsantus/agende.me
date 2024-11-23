@@ -19,12 +19,20 @@ const getSchedule = {
   }),
 };
 
-const deleteSchedule = {
+const validSchedule = {
   body: Joi.object().keys({
-    date: Joi.date().required(),
+    dateStart: Joi.date().required(),
+    dateEnd: Joi.date().required(),
   }),
   params: Joi.object().keys({
     userId: Joi.string().required().custom(objectId),
+  }),
+};
+
+const deleteSchedule = {
+  params: Joi.object().keys({
+    userId: Joi.string().required().custom(objectId),
+    date: Joi.date().required(),
   }),
 };
 
@@ -32,4 +40,5 @@ module.exports = {
   createSchedule,
   deleteSchedule,
   getSchedule,
+  validSchedule,
 };

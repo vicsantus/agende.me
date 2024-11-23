@@ -10,6 +10,8 @@ router
   .route('/:userId')
   .get(auth(), validate(scheduleValidation.getSchedule), scheduleController.getSchedule)
   .post(auth(), validate(scheduleValidation.createSchedule), scheduleController.createSchedule)
-  .delete(auth(), validate(scheduleValidation.deleteSchedule), scheduleController.deleteSchedule);
+  .delete(auth(), /* validate(scheduleValidation.deleteSchedule),  */scheduleController.deleteSchedule);
+
+  router.post('/validation/:userId', auth(), validate(scheduleValidation.validSchedule), scheduleController.validSchedule)
 
 module.exports = router;

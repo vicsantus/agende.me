@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   Alert,
   Button,
@@ -10,25 +10,59 @@ import {
   View,
 } from 'react-native';
 import {Calendar} from 'react-native-calendars';
-// import {DatePicker} from 'react-native-wheel-pick';
+import BtnPrimary from '../components/atoms/BtnPrimary';
+import Loading from '../components/atoms/Loading';
 import DatePicker from '../utils/data-picker';
+import {
+  createNewSchedules,
+  deleteSchedule,
+  getSchedule,
+  validSchedule,
+} from '../utils/fetchApi';
 
-export default function Agenda() {
+export default function Agenda({userId, isTheOwner}) {
   const [selectedDate, setSelectedDate] = useState(
     new Date().toISOString().split('T')[0],
   );
   const [activities, setActivities] = useState({});
   const [modalVisible, setModalVisible] = useState(false);
+  const [agenda, setAgenda] = useState({});
   const [newActivity, setNewActivity] = useState({
     startTime: '',
     endTime: '',
     description: '',
   });
+  const [isLoading, setLoading] = useState(false);
+  const now = {key: 'now', color: 'white', selectedDotColor: 'white'};
 
-  const addActivity = () => {
+  async function deleteDate(date, index) {
+    try {
+      setLoading(true);
+      const newDate = new Date(date).toISOString().split('T')[0];
+      const deleted = await deleteSchedule(userId, date);
+      const updatedActivities = {...activities};
+
+      // Remover o item do array de atividades
+      updatedActivities[newDate].splice(index, 1);
+
+      // Se não houver mais atividades na data, remover a chave
+      if (updatedActivities[newDate].length === 0) {
+        delete updatedActivities[newDate];
+      }
+
+      // Atualizar o estado
+      setActivities(updatedActivities);
+      setLoading(false);
+    } catch (error) {
+      console.log(error);
+
+      return false;
+    }
+  }
+
+  async function addActivity() {
     const activitiesForDate = activities[selectedDate] || [];
 
-    // Verifica se já existe uma atividade no mesmo horário
     const isTimeTaken = activitiesForDate.some(
       activity =>
         activity.startTime === newActivity.startTime ||
@@ -39,7 +73,13 @@ export default function Agenda() {
           newActivity.endTime <= activity.endTime),
     );
 
-    if (isTimeTaken) {
+    const isConflicted = await validSchedule(
+      userId,
+      newActivity.startTime,
+      newActivity.endTime,
+    );
+
+    if (isTimeTaken || isConflicted) {
       Alert.alert(
         'Horário indisponível',
         'Já existe uma atividade cadastrada neste horário.',
@@ -47,21 +87,74 @@ export default function Agenda() {
       return;
     }
 
-    // Adiciona a nova atividade
+    await createNewSchedules(
+      userId,
+      newActivity.startTime,
+      newActivity.endTime,
+      newActivity.description,
+    );
+
     setActivities(prev => ({
       ...prev,
       [selectedDate]: [...activitiesForDate, newActivity],
     }));
+
     setNewActivity({startTime: '', endTime: '', description: ''});
     setModalVisible(false);
-  };
+  }
 
-  const vacation = {key: 'vacation', color: 'red', selectedDotColor: 'blue'};
-  const massage = {key: 'massage', color: 'blue', selectedDotColor: 'blue'};
-  const workout = {key: 'workout', color: 'green'};
-  console.log(activities);
-  console.log(new Date(selectedDate));
+  useEffect(() => {
+    const datas = Object.keys(activities);
+    const schedule = datas.reduce((acc, date) => {
+      const dots = activities[date].map((v, idx) => {
+        return {key: `workout-${idx}`, color: 'red'};
+      });
 
+      acc[date] = {
+        selected: true,
+        dots,
+      };
+      return acc;
+    }, {});
+
+    setAgenda(schedule);
+  }, [activities]);
+
+  useEffect(() => {
+    setLoading(true);
+
+    getSchedule(userId)
+      .then(e => {
+        if (e[0]) {
+          const formattedData = e.reduce((acc, item) => {
+            const dateKey = new Date(item.dateStart)
+              .toISOString()
+              .split('T')[0];
+
+            if (!acc[dateKey]) {
+              acc[dateKey] = [];
+            }
+
+            acc[dateKey].push({
+              startTime: item.dateStart,
+              endTime: item.dateEnd,
+              description: item.comments.trim(),
+            });
+
+            return acc;
+          }, {});
+          setActivities(formattedData);
+          setLoading(false);
+        }
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, []);
+
+  if (isLoading) {
+    return <Loading />;
+  }
   return (
     <View style={styles.container}>
       {/* Calendário */}
@@ -71,38 +164,79 @@ export default function Agenda() {
         markingType={'multi-dot'}
         style={{width: '100%'}}
         markedDates={{
-          [selectedDate]: {selected: true, marked: true, dots: [workout]},
-          [activities.startTime]: {
-            marked: true,
-            selected: true,
-            dots: [vacation],
-          },
-          [activities.endTime]: {marked: true, selected: true, dots: [massage]},
+          [selectedDate]: {selected: true, marked: true, dots: [now]},
+          ...agenda,
         }}
       />
 
       {/* Lista de atividades */}
-      <Text style={styles.header}>Atividades para {selectedDate}</Text>
+      <Text style={styles.header}>
+        Atividades para {new Date(selectedDate).toISOString().split('T')[0]}
+      </Text>
       <FlatList
         data={activities[selectedDate] || []}
         keyExtractor={(item, index) => index.toString()}
-        renderItem={({item}) => (
+        renderItem={({item, index}) => (
           <View style={styles.activity}>
-            <Text style={styles.time}>
-              {item.startTime.toString()} - {item.endTime.toString()}
-            </Text>
+            <View
+              style={{
+                alignItems: 'center',
+                justifyContent: 'space-evenly',
+                flexDirection: 'row',
+                width: '100%',
+              }}>
+              <Text style={styles.time}>
+                {String(new Date(item.startTime).getUTCHours()).padStart(
+                  2,
+                  '0',
+                )}
+                :
+                {String(new Date(item.startTime).getUTCMinutes()).padStart(
+                  2,
+                  '0',
+                )}
+                {' - '}
+                {String(new Date(item.endTime).getUTCHours()).padStart(2, '0')}:
+                {String(new Date(item.endTime).getUTCMinutes()).padStart(
+                  2,
+                  '0',
+                )}
+              </Text>
+              {isTheOwner && (
+                <BtnPrimary
+                  text="X"
+                  onPress={async () => {
+                    return await deleteDate(item.startTime, index);
+                  }}
+                  textStyle={{
+                    fontWeight: '700',
+                    fontSize: 15,
+                  }}
+                  style={{
+                    backgroundColor: 'red',
+                    width: 30,
+                    height: 30,
+                  }}
+                />
+              )}
+            </View>
             <Text style={{color: 'black'}}>{item.description}</Text>
           </View>
         )}
         ListEmptyComponent={
-          <Text style={styles.noActivities}>Nenhuma atividade agendada.</Text>
+          <Text style={styles.noActivities}>Nenhuma atividade agendada</Text>
         }
       />
 
       {/* Botão para adicionar nova atividade */}
       <Button
         title="Adicionar Atividade"
-        onPress={() => setModalVisible(true)}
+        onPress={() => {
+          const newDate = new Date(selectedDate);
+          newDate.setUTCHours(0, 0, 0, 0);
+          setSelectedDate(newDate.toISOString().split('T')[0]);
+          setModalVisible(true);
+        }}
       />
 
       {/* Modal para adicionar atividade */}
@@ -125,31 +259,51 @@ export default function Agenda() {
                 date={new Date(selectedDate)}
                 onDateChange={date =>
                   setNewActivity(prev => {
-                    console.log(date);
-                    return {...prev, startTime: date};
+                    const newDate = new Date(selectedDate);
+                    newDate.setUTCHours(
+                      new Date(date).getUTCHours(),
+                      new Date(date).getUTCMinutes(),
+                      0,
+                      0,
+                    );
+
+                    return {...prev, startTime: newDate};
                   })
                 }
               />
               {/* Hora de Término */}
-              <Text style={styles.text}>{'Hora de Término (HH:MM)'}</Text>
-              <DatePicker
-                style={{
-                  backgroundColor: 'white',
-                  width: '90%',
-                  height: 240,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}
-                mode="time"
-                date={new Date(selectedDate)}
-                onDateChange={date =>
-                  setNewActivity(prev => {
-                    console.log(date);
-                    return {...prev, endTime: date};
-                  })
-                }
-              />
-              {newActivity.startTime >= newActivity.endTime && (
+              {newActivity.startTime !== '' && (
+                <>
+                  <Text style={styles.text}>{'Hora de Término (HH:MM)'}</Text>
+                  <DatePicker
+                    style={{
+                      backgroundColor: 'white',
+                      width: '90%',
+                      height: 240,
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                    }}
+                    mode="time"
+                    date={new Date(selectedDate)}
+                    onDateChange={date =>
+                      setNewActivity(prev => {
+                        const newDate = new Date(selectedDate);
+
+                        newDate.setUTCHours(
+                          new Date(date).getUTCHours(),
+                          new Date(date).getUTCMinutes(),
+                          0,
+                          0,
+                        );
+
+                        return {...prev, endTime: newDate};
+                      })
+                    }
+                  />
+                </>
+              )}
+              {new Date(newActivity.startTime) >=
+                new Date(newActivity.endTime) && (
                 <Text style={{color: 'red', fontSize: 15}}>
                   {'Horario não permitido!'}
                 </Text>
@@ -172,7 +326,10 @@ export default function Agenda() {
             />
             <Button
               title="Cancelar"
-              onPress={() => setModalVisible(false)}
+              onPress={() => {
+                setNewActivity({startTime: '', endTime: '', description: ''});
+                setModalVisible(false);
+              }}
               color="red"
             />
           </View>
@@ -186,7 +343,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 10,
-    width: '90%',
+    width: '100%',
     alignItems: 'center',
   },
   header: {
@@ -196,7 +353,8 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   activity: {
-    flexDirection: 'row',
+    width: '100%',
+    flexDirection: 'column',
     justifyContent: 'space-between',
     padding: 10,
     borderBottomWidth: 1,
@@ -238,7 +396,6 @@ const styles = StyleSheet.create({
     color: 'black',
   },
   viewHours: {
-    // flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
