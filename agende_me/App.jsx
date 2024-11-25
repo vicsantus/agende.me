@@ -7,6 +7,7 @@
 
 import React from 'react';
 import {StyleSheet, Text, useColorScheme, View} from 'react-native';
+import {GestureHandlerRootView} from 'react-native-gesture-handler';
 
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import {GeneralProvider} from './src/context/UserContext';
@@ -48,7 +49,9 @@ function App() {
 
   return (
     <GeneralProvider>
-      <Routes />
+      <GestureHandlerRootView>
+        <Routes />
+      </GestureHandlerRootView>
     </GeneralProvider>
   );
 }

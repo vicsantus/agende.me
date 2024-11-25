@@ -66,7 +66,7 @@ const getUserById = async (id) => {
  * @returns {Promise<User>}
  */
 const updateUserById = async (userId, updateBody) => {
-  const user = await getUserById(userId);
+  const user = (await getUserById(userId)).user;
   if (!user) {
     throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
   }
@@ -152,7 +152,7 @@ const getUserByProfile = async (query, options) => {
         Sequelize.where(Sequelize.fn('LOWER', Sequelize.col('lastName')), Op.like, `%${searchQuery}%`),
         Sequelize.where(Sequelize.fn('LOWER', Sequelize.col('email')), Op.like, `%${searchQuery}%`)
       ],
-      role: options.role || 'admin',
+      role: 'admin',
     },
     attributes: ['id'],
   });
@@ -178,7 +178,8 @@ const getUserByProfile = async (query, options) => {
   // Busca final, trazendo os dados completos dos usuários com os IDs combinados
   const users = await User.findAll({
     where: {
-      id: combinedUserIds
+      id: combinedUserIds,
+      role: 'admin',
     },
     include: [
       {

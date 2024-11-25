@@ -29,7 +29,7 @@ export function validatePassword(pass) {
 }
 
 export function validateName(nome) {
-  if (![' '].includes(nome)) {
+  if (!nome.includes(' ')) {
     return {
       error: true,
       message: 'Seu nome deve conter nome e sobrenome!',

@@ -1,6 +1,6 @@
 import {useNavigation} from '@react-navigation/native';
 import React, {useEffect, useRef, useState} from 'react';
-import {Modal, SafeAreaView, StyleSheet, Text, View} from 'react-native';
+import {Alert, Modal, SafeAreaView, StyleSheet, Text, View} from 'react-native';
 import BtnPrimary from '../components/atoms/BtnPrimary';
 import BtnSecondary from '../components/atoms/BtnSecondary';
 import Input from '../components/atoms/Input';
@@ -111,6 +111,10 @@ export default function Login({login, route}) {
     try {
       if (isLogin) {
         const user = await loginUser(email, senha);
+        if (!user) {
+          Alert.alert('Erro ao fazer login', 'Não foi possivel fazer login!');
+          return;
+        }
         await saveAcessTokenInStorage(
           user?.tokens?.access?.token,
           user?.tokens?.refresh?.token,
@@ -129,6 +133,13 @@ export default function Login({login, route}) {
           nome.split(' ').at(-1),
           tipo.id,
         );
+        if (!user) {
+          Alert.alert(
+            'Erro ao criar usuário',
+            'Não foi possivel criar usuário!',
+          );
+          return;
+        }
         await saveAcessTokenInStorage(
           user?.tokens?.access?.token,
           user?.tokens?.refresh?.token,

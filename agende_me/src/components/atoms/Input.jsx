@@ -22,7 +22,9 @@ export default function Input({
   dinamicWidth,
   inputMode,
   style,
+  inputStyle,
   keyboardType,
+  multiln,
 }) {
   return (
     <View
@@ -43,13 +45,14 @@ export default function Input({
         placeholder={placeholder}
         placeholderTextColor="rgba(9, 72, 52, 0.50)"
         secureTextEntry={itsPassword}
-        style={error ? styles.textBoxError : styles.textBox}
+        style={error ? styles.textBoxError : {...styles.textBox, ...inputStyle}}
         returnKeyType={returnKeyType}
         onSubmitEditing={onSubmitEditing}
         blurOnSubmit={blurOnSubmit}
         ref={innerRef}
         inputMode={inputMode && inputMode}
         keyboardType={keyboardType}
+        multiline={multiln}
       />
       {error && <Text style={styles.error}> {errorMessage} </Text>}
     </View>

@@ -46,7 +46,7 @@ axios.interceptors.response.use(
     // console.log(JSON.stringify(error.response, null, 2));
     // console.log(error.response.data.message);
     // console.log(error.response.status);
-    if (error.response.status === 401 && error.response.data.message === 'Please authenticate') {
+    if (error?.response?.status === 401 && error?.response?.data?.message === 'Please authenticate') {
       localStorage.getTokensInStorage().then(async (e) => {
         if (e?.refreshToken) {
           
@@ -126,7 +126,7 @@ async function criarUser(email, password, firstName, lastName, role) {
     return user.data;
   } catch (error) {
     console.error(error);
-    return error
+    return false
   }
 }
 
@@ -199,10 +199,13 @@ async function getSchedule(userId) {
     // const data = {
     //   email, password
     // }
-    const schedules = await axios.get(
-      `${URL_API}/v1/schedule/${userId}`
-    )
-    return schedules.data;
+    if (userId) {
+      const schedules = await axios.get(
+        `${URL_API}/v1/schedule/${userId}`
+      )
+      return schedules.data;
+    }
+    return false
   } catch (error) {
     console.log(error);
     return false
@@ -261,10 +264,39 @@ async function deleteSchedule(userId, date) {
   }
 }
 
+async function updateUserProfile(userId, data) {
+  try {
+    // const data = {
+    //   email, password
+    // }
+    const user = await axios.post(
+      `${URL_API}/v1/profile/${userId}`, data
+    )
+    return user.data;
+  } catch (error) {
+    console.log(error);
+    return false
+  }
+}
+
+async function updateUser(userId, data) {
+  try {
+    // const data = {
+    //   email, password
+    // }
+    const user = await axios.patch(
+      `${URL_API}/v1/users/${userId}`, data
+    )
+    return user.data;
+  } catch (error) {
+    console.log(error);
+    return false
+  }
+}
+
 export {
   createNewSchedules, criarUser, deleteSchedule, findUser, getSchedule, loginUser,
   refreshTokens,
-  searchAdmins,
-  validSchedule
+  searchAdmins, updateUser, updateUserProfile, validSchedule
 };
 
