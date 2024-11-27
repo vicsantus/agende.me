@@ -25,6 +25,7 @@ export default function Input({
   inputStyle,
   keyboardType,
   multiln,
+  blur,
 }) {
   return (
     <View
@@ -53,6 +54,7 @@ export default function Input({
         inputMode={inputMode && inputMode}
         keyboardType={keyboardType}
         multiline={multiln}
+        onBlur={blur && blur}
       />
       {error && <Text style={styles.error}> {errorMessage} </Text>}
     </View>

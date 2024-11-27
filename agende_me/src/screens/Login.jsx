@@ -113,6 +113,7 @@ export default function Login({login, route}) {
         const user = await loginUser(email, senha);
         if (!user) {
           Alert.alert('Erro ao fazer login', 'Não foi possivel fazer login!');
+          setLoading(false);
           return;
         }
         await saveAcessTokenInStorage(
@@ -138,6 +139,7 @@ export default function Login({login, route}) {
             'Erro ao criar usuário',
             'Não foi possivel criar usuário!',
           );
+          setLoading(false);
           return;
         }
         await saveAcessTokenInStorage(
@@ -205,7 +207,21 @@ export default function Login({login, route}) {
               error={errorNome}
               errorMessage={errorMessageNome}
               returnKeyType="next"
-              onSubmitEditing={() => telRef.current.focus()}
+              blur={() => {
+                let n = nome;
+                n = n.replaceAll('  ', ' ');
+                if (nome.toString().at(-1) === ' ') {
+                  n = n.slice(0, -1);
+                }
+                return setNome(n);
+              }}
+              onSubmitEditing={() => {
+                // if (nome.toString().at(-1) === ' ') {
+                //   const n = nome;
+                //   setNome(n.slice(0, -1));
+                // }
+                return telRef.current.focus();
+              }}
               blurOnSubmit={false}
               style={/* isKeyboardVisible &&  */ {paddingVertical: 4}}
             />
@@ -239,7 +255,7 @@ export default function Login({login, route}) {
         <Input
           editable={true}
           value={email.toString()}
-          placeholder="ale@gmail"
+          placeholder="seu-email@email.com"
           onChange={value => {
             setEmail(value.toLowerCase());
             cleanErrors();
@@ -247,6 +263,14 @@ export default function Login({login, route}) {
           label="Email"
           error={errorEmail}
           errorMessage={errorMessageEmail}
+          blur={() => {
+            let n = email;
+            n = n.replaceAll('  ', ' ');
+            if (email.toString().at(-1) === ' ') {
+              n = n.slice(0, -1);
+            }
+            return setEmail(n.toLowerCase());
+          }}
           returnKeyType="next"
           onSubmitEditing={() => senhaRef.current.focus()}
           blurOnSubmit={false}
