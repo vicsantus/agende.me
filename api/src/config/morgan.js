@@ -4,6 +4,7 @@ const logger = require('./logger');
 const chalk = require('chalk');
 
 morgan.token('message', (req, res) => res.locals.errorMessage || '');
+morgan.token('date', (req, res) => chalk.magenta(new Date().toISOString()));
 
 morgan.token("method", (req, _) => {
   const method = req.method;
@@ -38,8 +39,8 @@ morgan.token("status", (_, res) => {
 morgan.token("url", (req, _) => chalk.magenta(req.url));
 
 const getIpFormat = () => (config.env === 'production' ? ':remote-addr - ' : '');
-const successResponseFormat = `${getIpFormat()}:method :url :status - :response-time ms`;
-const errorResponseFormat = `${getIpFormat()}:method :url :status - :response-time ms - message: :message`;
+const successResponseFormat = `:date - ${getIpFormat()}:method - :url :status - :response-time ms`;
+const errorResponseFormat = `:date - ${getIpFormat()}:method - :url :status - :response-time ms - message: :message`;
 
 const successHandler = morgan(successResponseFormat, {
   skip: (req, res) => res.statusCode >= 400,
