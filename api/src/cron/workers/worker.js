@@ -10,6 +10,13 @@ const connection = new Redis({
   host: HOST,
   port: PORT,
   maxRetriesPerRequest: null,
+  retryStrategy: (times) => {
+    if (times > 10) {
+      console.error('Não foi possível conectar ao Redis após 10 tentativas.');
+      return null;
+    }
+    return Math.min(times * 50, 2000);
+  },
 });
 
 const queue = new Queue('myQueue', {
