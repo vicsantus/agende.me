@@ -59,12 +59,10 @@ export default function Login({login, route}) {
     setErrorMessageTipo('');
   };
 
-  function validPass(senha) {
-    const verifyPassword = validatePassword(senha);
-    if (verifyPassword.error) {
-      setErrorSenha(true);
-      setErrorMessageSenha(verifyPassword.message);
-    }
+  function handleChangeEmail(value) {
+    // Aqui só estamos atualizando o estado, sem manipulá-lo diretamente
+    setEmail(value);
+    cleanErrors();
   }
 
   async function createUser() {
@@ -254,22 +252,18 @@ export default function Login({login, route}) {
 
         <Input
           editable={true}
-          value={email.toString()}
+          value={email}
           placeholder="seu-email@email.com"
-          onChange={value => {
-            setEmail(value.toLowerCase());
-            cleanErrors();
-          }}
+          onChange={handleChangeEmail}
           label="Email"
           error={errorEmail}
           errorMessage={errorMessageEmail}
           blur={() => {
-            let n = email;
-            n = n.replaceAll('  ', ' ');
-            if (email.toString().at(-1) === ' ') {
-              n = n.slice(0, -1);
-            }
-            return setEmail(n.toLowerCase());
+            // No blur, podemos realizar as modificações necessárias, como 'replace' ou 'toLowerCase'
+            let cleanedEmail = email.replaceAll(/\s+/g, ''); // Remove espaços extras
+            cleanedEmail = cleanedEmail.toLowerCase(); // Converte para minúsculas
+
+            setEmail(cleanedEmail); // Atualiza o estado com o email limpo
           }}
           returnKeyType="next"
           onSubmitEditing={() => senhaRef.current.focus()}
